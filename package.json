@@ -1,0 +1,19 @@
+{
+  "name": "neighborhood-map",
+  "version": "1.0.0",
+  "description": "p5-1 neighborhood map",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mlow991/neighborhood-map.git"
+  },
+  "author": "mlow",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mlow991/neighborhood-map/issues"
+  },
+  "homepage": "https://github.com/mlow991/neighborhood-map#readme"
+}
