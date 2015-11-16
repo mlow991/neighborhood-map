@@ -4,7 +4,6 @@ var myLatLng = {lat: 21.469324, lng: -157.961810};
 var defaultLocations = [{lat: 21.2759257, lng: -157.8145445}]
 
 var map;
-
 function initMap() {
 	var mapOptions = {
 		center: myLatLng,
@@ -23,6 +22,13 @@ function initMap() {
 		map.setCenter(c);
 	});
 }
+
+var viewModel = {
+	test: ko.observable("Test: "),
+	phrase: ko.observable(123)
+};
+
+ko.applyBindings(viewModel);
 
 
 
