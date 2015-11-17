@@ -16,6 +16,10 @@ html, body {
 	padding: 0;
 }
 
+div {
+	color: #404040;
+}
+
 #map {
 	height: 100%;
 }
@@ -34,8 +38,32 @@ html, body {
 }
 
 .sButton {
+	font-family: Arial, Helvetica, sans-serif;
 	width: 100px;
-	font-size: 20px;
+	font-size: 22px;
+	text-align: center;
+	padding: 5px;
+	background-color: #E8E8E8;
+	border: 2px solid #D8D8D8;
+}
+
+.place {
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 16px;
+	padding: 15px;
+	padding-left: 30px;
+	border-width: 2px;
+	border-color: #D8D8D8;
+	border-style: solid solid none;
+}
+
+.place:last-of-type {
+	border-style: solid;
+}
+
+.place:first-of-type {
+	background-color: #E8E8E8;
 }
 
 .container {

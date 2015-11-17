@@ -15,7 +15,12 @@
 		</form>
 	</div>
 	<div class="overall container">
-		<div class="col-3" data-bind="text: viewModel.test() + viewModel.phrase()"></div>
+		<div class="col-3">
+			<div class="col-12 place">Key Locations</div>
+			<!-- ko foreach: places -->
+				<div class="col-12 place" data-bind="text: name"></div>
+			<!-- /ko -->
+		</div>
 		<div id="map" class="col-9"></div>
 	</div>
 	<script src="js/app.js" type="text/javascript"></script>
