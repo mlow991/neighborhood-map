@@ -16,7 +16,7 @@ html, body {
 	padding: 0;
 }
 
-div {
+div { 
 	color: #404040;
 }
 
@@ -53,17 +53,15 @@ div {
 	font-size: 16px;
 	padding: 15px;
 	padding-left: 30px;
-	border-width: 2px;
-	border-color: #D8D8D8;
-	border-style: solid solid none;
-}
-
-.place:last-of-type {
-	border-style: solid;
+	border: 2px solid #D8D8D8;
 }
 
 .place:first-of-type {
 	background-color: #E8E8E8;
+}
+
+.place:not(:first-child) {
+	border-top: 0;
 }
 
 .container {

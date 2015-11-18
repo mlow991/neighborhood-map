@@ -28,10 +28,9 @@ function placesViewModel() {
 
 	self.places = ko.observableArray([
 		{name: "Rainbow Drive-In", type: "restaruant", coordinates: {lat: 21.2759257, lng: -157.8145445}, description: "Description here", clicked: ko.observable(false), match: ko.observable(true)},
-		{name: "Big Wave Shrimp Truck", type: "restaraunt", coordinates: {lat: 21.579469, lng: -158.105532}, description: "Description here", clicked: ko.observable(false), match: ko.observable(true)}
+		{name: "Big Wave Shrimp Truck", type: "restaraunt", coordinates: {lat: 21.579469, lng: -158.105532}, description: "Description here", clicked: ko.observable(false), match: ko.observable(true)},
+		{name: "Town", type: "restaraunt", coordinates: {lat: 21.579469, lng: -158.105532}, description: "Description here", clicked: ko.observable(false), match: ko.observable(true)}		
 	]);
-
-	self.len = self.places().length;
 
 	// Offers a toggle for clicking
 	self.click = function(place) {
@@ -63,13 +62,10 @@ var viewModel = {
 	},
 	compareSearch : function(index) {
 		var searchString = viewModel.searchView.search();
-		console.log("search string: " + searchString);
-/*		var len = viewModel.placesView.len;
-		for(i = 0; i < len; i++) {
-			if(viewModel.placesView.places()[i])
-		} */
+
 		var nlowercase = viewModel.placesView.places()[index].name.toLowerCase();
 		var slowercase = searchString.toLowerCase();
+
 		if(nlowercase.indexOf(slowercase) > -1) {
 			viewModel.placesView.places()[index].match(true);
 		} else if(searchString.length == 0) {
@@ -79,7 +75,6 @@ var viewModel = {
 		}
 
 		return viewModel.placesView.places()[index].match();
-		
 	}
 };
 
