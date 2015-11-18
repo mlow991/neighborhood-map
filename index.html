@@ -18,7 +18,7 @@
 		<div class="col-3">
 			<div class="col-12 place">Key Locations</div>
 			<!-- ko foreach: places -->
-				<div class="col-12 place" data-bind="text: name, click: $parent.click"></div>
+				<div class="col-12 place" data-bind="text: name, click: $parent.click, style: {backgroundColor: clicked() > 0 ? '#ffff66' : ''}"></div>
 			<!-- /ko -->
 		</div>
 		<div id="map" class="col-9"></div>

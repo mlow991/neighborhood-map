@@ -34,17 +34,7 @@ function placesViewModel() {
 	// Offers a toggle for clicking
 	self.click = function(place) {
 		var index = self.places().indexOf(place);
-		console.log(index);
 		self.places()[index].clicked(!place.clicked());
-/*		if (self.places()[index].clicked()) {
-			self.places()[index].clicked(false);
-		} else {
-			self.places()[index].clicked(true);
-		}
-*/
-		console.log("clicked: " + self.places()[index].clicked());
-		//self.places()[index].clicked(true);
-		//console.log("clicked: " + self.places()[index].clicked());
 	}
 }
 
