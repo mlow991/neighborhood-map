@@ -10,15 +10,15 @@
 <body>
 	<div class="search container">
 		<div class="search sButton">Search</div>
-		<form>
-			<input type="text" class="search sInput">
+		<form action="javascript:void(0)">
+			<input type="text" class="search sInput" id="searchField" data-bind="textInput: search, click: log">
 		</form>
 	</div>
-	<div class="overall container">
+	<div class="overall container" id="placesField">
 		<div class="col-3">
 			<div class="col-12 place">Key Locations</div>
 			<!-- ko foreach: places -->
-				<div class="col-12 place" data-bind="text: name"></div>
+				<div class="col-12 place" data-bind="text: name, click: $parent.print"></div>
 			<!-- /ko -->
 		</div>
 		<div id="map" class="col-9"></div>
