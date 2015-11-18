@@ -27,16 +27,18 @@ function placesViewModel() {
 	var self = this;
 
 	self.places = ko.observableArray([
-		{name: "Rainbow Drive-In", type: "restaruant", coordinates: {lat: 21.2759257, lng: -157.8145445}, description: "Description here", clicked: ko.observable(false)},
-		{name: "Big Wave Shrimp Truck", type: "restaraunt", coordinates: {lat: 21.579469, lng: -158.105532}, description: "Description here", clicked: ko.observable(false)}
+		{name: "Rainbow Drive-In", type: "restaruant", coordinates: {lat: 21.2759257, lng: -157.8145445}, description: "Description here", clicked: ko.observable(false), match: ko.observable(true)},
+		{name: "Big Wave Shrimp Truck", type: "restaraunt", coordinates: {lat: 21.579469, lng: -158.105532}, description: "Description here", clicked: ko.observable(false), match: ko.observable(true)}
 	]);
+
+	self.len = self.places().length;
 
 	// Offers a toggle for clicking
 	self.click = function(place) {
 		var index = self.places().indexOf(place);
 		self.places()[index].clicked(!place.clicked());
 	}
-}
+};
 
 function searchViewModel() {
 	var self = this;
@@ -49,12 +51,42 @@ function searchViewModel() {
 };
 
 var viewModel = {
-	test: ko.observable("Test: "),
-	phrase: ko.observable(123)
+	placesView : new placesViewModel(),
+	searchView : new searchViewModel(),
+	init : function() {
+		//ko.applyBindings(viewModel.places, document.getElementById('placesField'));
+		//ko.applyBindings(viewModel.search, document.getElementById('searchField'));
+		ko.applyBindings(viewModel);
+	},
+	print : function(self) {
+		console.log(self.search());
+	},
+	compareSearch : function(index) {
+		var searchString = viewModel.searchView.search();
+		console.log("search string: " + searchString);
+/*		var len = viewModel.placesView.len;
+		for(i = 0; i < len; i++) {
+			if(viewModel.placesView.places()[i])
+		} */
+		var nlowercase = viewModel.placesView.places()[index].name.toLowerCase();
+		var slowercase = searchString.toLowerCase();
+		if(nlowercase.indexOf(slowercase) > -1) {
+			viewModel.placesView.places()[index].match(true);
+		} else if(searchString.length == 0) {
+			viewModel.placesView.places()[index].match(true);
+		} else {
+			viewModel.placesView.places()[index].match(false);			
+		}
+
+		return viewModel.placesView.places()[index].match();
+		
+	}
 };
 
-ko.applyBindings(new placesViewModel(), document.getElementById('placesField'));
-ko.applyBindings(new searchViewModel(), document.getElementById('searchField'));
+viewModel.init();
+
+//ko.applyBindings(new placesViewModel(), document.getElementById('placesField'));
+//ko.applyBindings(new searchViewModel(), document.getElementById('searchField'));
 
 
 

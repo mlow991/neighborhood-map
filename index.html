@@ -10,15 +10,15 @@
 <body>
 	<div class="search container">
 		<div class="search sButton">Search</div>
-		<form action="javascript:void(0)">
-			<input type="text" class="search sInput" id="searchField" data-bind="textInput: search, click: log">
+		<form action="javascript:void(0)" data-bind="with: searchView">
+			<input type="text" class="search sInput" id="searchField" data-bind="textInput: search, click: $root.print">
 		</form>
 	</div>
-	<div class="overall container" id="placesField">
+	<div class="overall container" id="placesField" data-bind="with: placesView">
 		<div class="col-3">
 			<div class="col-12 place">Key Locations</div>
 			<!-- ko foreach: places -->
-				<div class="col-12 place" data-bind="text: name, click: $parent.click, style: {backgroundColor: clicked() > 0 ? '#ffff66' : ''}"></div>
+				<div class="col-12 place" data-bind="text: name, click: $parent.click, style: {backgroundColor: clicked() > 0 ? '#ffff66' : ''}, visible: $root.compareSearch($index())"></div>
 			<!-- /ko -->
 		</div>
 		<div id="map" class="col-9"></div>
