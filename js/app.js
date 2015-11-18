@@ -27,12 +27,22 @@ function placesViewModel() {
 	var self = this;
 
 	self.places = ko.observableArray([
-		{name: "Rainbow Drive-In", type: "restaruant", coordinates: {lat: 21.2759257, lng: -157.8145445}, description: "Description here"},
-		{name: "Big Wave Shrimp Truck", type: "restaraunt", coordinates: {lat: 21.579469, lng: -158.105532}, description: "Description here"}
+		{name: "Rainbow Drive-In", type: "restaruant", coordinates: {lat: 21.2759257, lng: -157.8145445}, description: "Description here", clicked: ko.observable(false)},
+		{name: "Big Wave Shrimp Truck", type: "restaraunt", coordinates: {lat: 21.579469, lng: -158.105532}, description: "Description here", clicked: ko.observable(false)}
 	]);
 
-	self.print = function() {
-		console.log("clicked");
+	// Offers a toggle for clicking
+	self.click = function(place) {
+		var index = self.places().indexOf(place);
+		console.log(index);
+		if (self.places()[index].clicked()) {
+			self.places()[index].clicked(false);
+		} else {
+			self.places()[index].clicked(true);
+		}
+		console.log("clicked: " + self.places()[index].clicked());
+		//self.places()[index].clicked(true);
+		//console.log("clicked: " + self.places()[index].clicked());
 	}
 }
 
