@@ -111,6 +111,7 @@ var viewModel = {
 viewModel.init();
 
 var map;
+var mapMarkers = [];
 function initMap() {
 	var mapOptions = {
 		center: myLatLng,
@@ -118,18 +119,33 @@ function initMap() {
 		zoom: 11
 	};
 	map = new google.maps.Map(document.getElementById('map'), mapOptions);
-
-	var marker = new google.maps.Marker({
-		map: map,
-		position: {lat: 21.469324, lng: -157.961810}
-	});
-	
+	createMapMarker(defaultCoords);
+	placeMapMarker();
+		
 	google.maps.event.addDomListener(window, 'load', initMap);
 	google.maps.event.addDomListener(window, 'resize', function() {
 		var c = map.getCenter();
 		google.maps.event.trigger(map, 'resize');
 		map.setCenter(c);
 	});
+}
+
+function createMapMarker(locArray) {
+	var len = defaultCoords.length;
+	for(i = 0; i < len; i++) {
+		var marker = new google.maps.Marker({
+			map: map,
+			position: locArray[i]
+		});
+		mapMarkers.push(marker);
+	}
+}
+
+function placeMapMarker() {
+	var len = mapMarkers.length;
+	for(i = 0; i < len; i++) {
+		mapMarkers[i].setMap(map);
+	}
 }
 
 //ko.applyBindings(new placesViewModel(), document.getElementById('placesField'));
