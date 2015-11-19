@@ -1,7 +1,42 @@
 var googMapAPI = "AIzaSyCkPGj9d4QyMtcRFYDII4xco_KBA428oQE";
 var geoCodeAPI = "AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s";
 var myLatLng = {lat: 21.469324, lng: -157.961810};
-var defaultLocations = [{lat: 21.2759257, lng: -157.8145445}]
+var defaultLocations = [];
+var defaultAddresses = {
+	"Rainbow Drive-In" : "3308 Kanaina Avenue Honolulu, HI 96815",
+	"Big Wave Shrimp Truck" : "66-521 Kamehameha Hwy. Haleiwa, HI 96712",
+	"Fresh Catch" : "3109 Waialae Ave Honolulu, HI 96816",
+	"Jawaiian Irie Jerk" : "1137 11th Ave. Honolulu, HI 96816",
+	"Germaine's Luau" : "91-119 Olai St. Kapolei, HI 96707",
+	"Uahi Island Grill" : "131 Hekili St #102 Kailua, HI 96734",
+	"Sweet Home Waimanalo" : "41-1025 Kalanianaole Hwy Waimanalo, HI 96795",
+	"Boots and Kimo's Homestyle Kitchen" : "151 Hekili St Kailua, HI 96734"
+};
+
+function handleDefaultLoc(obj) {
+	var uri = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
+	var key = '&key=' + geoCodeAPI;
+	var gpsCoords = [];
+	for(var item in defaultAddresses) {
+		var addr = defaultAddresses[item];
+		var url = uri + addr + key;
+		$.getJSON(url, function(data) {
+			var obj = {};
+			if(data.status == "OK") {
+				var d = data.results[0].geometry.location;
+				obj.lat = d.lat;
+				obj.lng = d.lng;
+				gpsCoords.push(obj);
+			} else {
+				console.log("error");
+			}
+		});
+	}
+	return gpsCoords;
+	//https://maps.googleapis.com/maps/api/geocode/json?address=66-521 Kamehameha Hwy. Haleiwa, HI 96712&key=AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s
+}
+
+defaultLocations = handleDefaultLoc(defaultAddresses);
 
 var map;
 function initMap() {
