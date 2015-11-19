@@ -1,7 +1,11 @@
 var googMapAPI = "AIzaSyCkPGj9d4QyMtcRFYDII4xco_KBA428oQE";
 var geoCodeAPI = "AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s";
 var myLatLng = {lat: 21.469324, lng: -157.961810};
+var defaultCoords = [];
+var defaultNames = [];
+var defaultDescription = [1,1,1,1,1,1,1,1];
 var defaultLocations = [];
+var defaultAmount = 0;
 var defaultAddresses = {
 	"Rainbow Drive-In" : "3308 Kanaina Avenue Honolulu, HI 96815",
 	"Big Wave Shrimp Truck" : "66-521 Kamehameha Hwy. Haleiwa, HI 96712",
@@ -18,6 +22,8 @@ function handleDefaultLoc(obj) {
 	var key = '&key=' + geoCodeAPI;
 	var gpsCoords = [];
 	for(var item in defaultAddresses) {
+		defaultNames.push(item);
+		defaultAmount++;
 		var addr = defaultAddresses[item];
 		var url = uri + addr + key;
 		$.getJSON(url, function(data) {
@@ -36,36 +42,23 @@ function handleDefaultLoc(obj) {
 	//https://maps.googleapis.com/maps/api/geocode/json?address=66-521 Kamehameha Hwy. Haleiwa, HI 96712&key=AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s
 }
 
-defaultLocations = handleDefaultLoc(defaultAddresses);
-
-var map;
-function initMap() {
-	var mapOptions = {
-		center: myLatLng,
-		scrollwheel:false,
-		zoom: 11
-	};
-	map = new google.maps.Map(document.getElementById('map'), mapOptions);
-	var marker = new google.maps.Marker({
-		map: map,
-		position: defaultLocations[0]
-	});
-	google.maps.event.addDomListener(window, 'load', initMap);
-	google.maps.event.addDomListener(window, 'resize', function() {
-		var c = map.getCenter();
-		google.maps.event.trigger(map, 'resize');
-		map.setCenter(c);
-	});
+function buildDefaultLoc() {
+	for(i = 0; i < defaultAmount; i++) {
+		var object = {};
+		object.name = defaultNames[i];
+		object.type = "restaurant";
+		object.coordinates = defaultCoords[i];
+		object.description = defaultDescription[i];
+		object.clicked = ko.observable(false);
+		object.match = ko.observable(true);
+		defaultLocations.push(object);
+	}
 }
 
 function placesViewModel() {
 	var self = this;
 
-	self.places = ko.observableArray([
-		{name: "Rainbow Drive-In", type: "restaruant", coordinates: {lat: 21.2759257, lng: -157.8145445}, description: "Description here", clicked: ko.observable(false), match: ko.observable(true)},
-		{name: "Big Wave Shrimp Truck", type: "restaraunt", coordinates: {lat: 21.579469, lng: -158.105532}, description: "Description here", clicked: ko.observable(false), match: ko.observable(true)},
-		{name: "Town", type: "restaraunt", coordinates: {lat: 21.579469, lng: -158.105532}, description: "Description here", clicked: ko.observable(false), match: ko.observable(true)}		
-	]);
+	self.places = ko.observableArray(defaultLocations);
 
 	// Offers a toggle for clicking
 	self.click = function(place) {
@@ -90,6 +83,8 @@ var viewModel = {
 	init : function() {
 		//ko.applyBindings(viewModel.places, document.getElementById('placesField'));
 		//ko.applyBindings(viewModel.search, document.getElementById('searchField'));
+		defaultCoords = handleDefaultLoc(defaultAddresses);
+		buildDefaultLoc();
 		ko.applyBindings(viewModel);
 	},
 	print : function(self) {
@@ -114,6 +109,28 @@ var viewModel = {
 };
 
 viewModel.init();
+
+var map;
+function initMap() {
+	var mapOptions = {
+		center: myLatLng,
+		scrollwheel:false,
+		zoom: 11
+	};
+	map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+	var marker = new google.maps.Marker({
+		map: map,
+		position: {lat: 21.469324, lng: -157.961810}
+	});
+	
+	google.maps.event.addDomListener(window, 'load', initMap);
+	google.maps.event.addDomListener(window, 'resize', function() {
+		var c = map.getCenter();
+		google.maps.event.trigger(map, 'resize');
+		map.setCenter(c);
+	});
+}
 
 //ko.applyBindings(new placesViewModel(), document.getElementById('placesField'));
 //ko.applyBindings(new searchViewModel(), document.getElementById('searchField'));
