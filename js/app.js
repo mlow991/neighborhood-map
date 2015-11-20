@@ -18,73 +18,56 @@ var defaultAddresses = {
 	"Boots and Kimo's Homestyle Kitchen" : "151 Hekili St, Kailua, HI 96734, USA"
 };
 
-function printCoords() {
-	for(i = 0; i < defaultCoordsAddr.length; i++) {
-		console.log(defaultCoordsAddr[i]);
-	}
-}
-
-function handleDefaultLoc(obj) {
-	var uri = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
-	var key = '&key=' + geoCodeAPI;
-	var gpsCoords = [];
-	var index = -1;
-	for(var item in defaultAddresses) {
-		index++;
-		defaultNames.push(item);
-		defaultAmount++;
-		var addr = defaultAddresses[item];
-		var url = uri + addr + key;
-		$.getJSON(url, function(data) {
-			var obj = {};
-			if(data.status == "OK") {
-				var d = data.results[0].geometry.location;
-				obj.lat = d.lat;
-				obj.lng = d.lng;
-				obj.addr = data.results[0].formatted_address;
-				gpsCoords.push(obj);
-			} else {
-				console.log("error");
-			}
-		});
-	}
-	return gpsCoords;
-	//https://maps.googleapis.com/maps/api/geocode/json?address=66-521 Kamehameha Hwy. Haleiwa, HI 96712&key=AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s
-}
-
-function buildDefaultLoc() {
-	for(i = 0; i < defaultAmount; i++) {
-		var object = {};
-		object.name = defaultNames[i];
-		object.type = "restaurant";
-		object.coordinates = defaultCoords[i];
-		object.description = defaultDescription[i];
-		object.clicked = ko.observable(false);
-		object.match = ko.observable(true);
-		defaultLocations.push(object);
-	}
-}
-defaultCoordsAddr = handleDefaultLoc(defaultAddresses);
-buildDefaultLoc();
-
-//Sorts the information returned from the geocode API so that the Lat/Lng matches the location name
-function sortCoords() {
-	var order = ["Rainbow Drive-In", "Big Wave Shrimp Truck", "Fresh Catch", "Jawaiian Irie Jerk",
-	 "Germaine's Luau", "Uahi Island Grill", "Sweet Home Waimanalo", "Boots and Kimo's Homestyle Kitchen"];
-	var len = order.length;
-	for(i = 0; i < len; i++) {
-		var addr = defaultCoordsAddr[i]['addr'];
-		for(j = 0; j < len; j++) {
-			var dAddr = defaultAddresses[order[j]];
-			if(addr == dAddr) {
+var apiHandler = {
+	//Get the Lat/Lng for each default address using the geocode API
+	handleDefaultLoc : function(obj) {
+		var uri = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
+		var key = '&key=' + geoCodeAPI;
+		var gpsCoords = [];
+		var index = -1;
+		for(var item in defaultAddresses) {
+			index++;
+			defaultNames.push(item);
+			defaultAmount++;
+			var addr = defaultAddresses[item];
+			var url = uri + addr + key;
+			$.getJSON(url, function(data) {
 				var obj = {};
-				obj.lat = defaultCoordsAddr[i].lat;
-				obj.lng = defaultCoordsAddr[i].lng;
-				defaultCoords[j] = obj;
-			}
+				if(data.status == "OK") {
+					var d = data.results[0].geometry.location;
+					obj.lat = d.lat;
+					obj.lng = d.lng;
+					obj.addr = data.results[0].formatted_address;
+					gpsCoords.push(obj);
+				} else {
+					console.log("error");
+				}
+			});
 		}
+		return gpsCoords;
+	},
+
+	//Build the default locations observable array to be placed into the placesViewModel
+	buildDefaultLoc : function() {
+		for(i = 0; i < defaultAmount; i++) {
+			var object = {};
+			object.name = defaultNames[i];
+			object.type = "restaurant";
+			object.coordinates = defaultCoords[i];
+			object.description = defaultDescription[i];
+			object.clicked = ko.observable(false);
+			object.match = ko.observable(true);
+			defaultLocations.push(object);
+		}
+	},
+
+	init : function() {
+		defaultCoordsAddr = this.handleDefaultLoc(defaultAddresses);
+		this.buildDefaultLoc();
 	}
 }
+
+apiHandler.init();
 
 function placesViewModel() {
 	var self = this;
@@ -122,8 +105,6 @@ var viewModel = {
 	placesView : new placesViewModel(),
 	searchView : new searchViewModel(),
 	init : function() {
-		//ko.applyBindings(viewModel.places, document.getElementById('placesField'));
-		//ko.applyBindings(viewModel.search, document.getElementById('searchField'));
 		ko.applyBindings(viewModel);
 	},
 	print : function(self) {
@@ -149,9 +130,29 @@ var viewModel = {
 
 viewModel.init();
 
+//Sorts the information returned from the geocode API so that the Lat/Lng matches the location name
+function sortCoords() {
+	var order = ["Rainbow Drive-In", "Big Wave Shrimp Truck", "Fresh Catch", "Jawaiian Irie Jerk",
+	 "Germaine's Luau", "Uahi Island Grill", "Sweet Home Waimanalo", "Boots and Kimo's Homestyle Kitchen"];
+	var len = order.length;
+	for(i = 0; i < len; i++) {
+		var addr = defaultCoordsAddr[i]['addr'];
+		for(j = 0; j < len; j++) {
+			var dAddr = defaultAddresses[order[j]];
+			if(addr == dAddr) {
+				var obj = {};
+				obj.lat = defaultCoordsAddr[i].lat;
+				obj.lng = defaultCoordsAddr[i].lng;
+				defaultCoords[j] = obj;
+			}
+		}
+	}
+}
+
 var map;
 var mapMarkers = [];
 var infoWindows = [];
+
 function initMap() {
 	var mapOptions = {
 		center: myLatLng,
