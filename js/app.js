@@ -177,7 +177,7 @@ var mapHandler = {
 				position: locArray[i]
 			});
 			var infowindow = new google.maps.InfoWindow({
-				content: defaultDescription[i],
+				content: this.createContent(i),
 				minWidth: 300
 			});
 			infoWindows.push(infowindow);
@@ -195,5 +195,13 @@ var mapHandler = {
 				};
 			})(mapMarkers[i], infoWindows[i]));
 		}
+	},
+
+	createContent : function(index) {
+		var name = '<div id="content"><h1 class="placeName">' + defaultNames[index] + '</h1>';
+		var addr = '<div class="body"><p>' + defaultNames[index] + ' is located at ' + defaultCoordsAddr[index].addr + '</p></div></div>';
+		var description = "";
+		var content = name + addr + description;
+		return content;
 	}
 };
