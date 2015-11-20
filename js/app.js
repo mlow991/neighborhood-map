@@ -65,7 +65,7 @@ var apiHandler = {
 		defaultCoordsAddr = this.handleDefaultLoc(defaultAddresses);
 		this.buildDefaultLoc();
 	}
-}
+};
 
 apiHandler.init();
 
@@ -130,25 +130,6 @@ var viewModel = {
 
 viewModel.init();
 
-//Sorts the information returned from the geocode API so that the Lat/Lng matches the location name
-function sortCoords() {
-	var order = ["Rainbow Drive-In", "Big Wave Shrimp Truck", "Fresh Catch", "Jawaiian Irie Jerk",
-	 "Germaine's Luau", "Uahi Island Grill", "Sweet Home Waimanalo", "Boots and Kimo's Homestyle Kitchen"];
-	var len = order.length;
-	for(i = 0; i < len; i++) {
-		var addr = defaultCoordsAddr[i]['addr'];
-		for(j = 0; j < len; j++) {
-			var dAddr = defaultAddresses[order[j]];
-			if(addr == dAddr) {
-				var obj = {};
-				obj.lat = defaultCoordsAddr[i].lat;
-				obj.lng = defaultCoordsAddr[i].lng;
-				defaultCoords[j] = obj;
-			}
-		}
-	}
-}
-
 var map;
 var mapMarkers = [];
 var infoWindows = [];
@@ -165,44 +146,54 @@ function initMap() {
 		google.maps.event.trigger(map, 'resize');
 		map.setCenter(c);
 	});
-	sortCoords();
-	createMapMarker(defaultCoords);
-	placeMapMarker();
+	mapHandler.sortCoords();
+	mapHandler.createMapMarker(defaultCoords);
+	mapHandler.placeMapMarker();
 }
 
-function createMapMarker(locArray) {
-	var len = defaultCoords.length;
-	for(i = 0; i < len; i++) {
-		var marker = new google.maps.Marker({
-			map: map,
-			position: locArray[i]
-		});
-		var infowindow = new google.maps.InfoWindow({
-			content: defaultDescription[i],
-			minWidth: 300
-		});
-		infoWindows.push(infowindow);
-		mapMarkers.push(marker);
+var mapHandler = {
+	//Sorts the information returned from the geocode API so that the Lat/Lng matches the location name
+	sortCoords : function() {
+		var len = defaultNames.length;
+		for(i = 0; i < len; i++) {
+			var addr = defaultCoordsAddr[i]['addr'];
+			for(j = 0; j < len; j++) {
+				var dAddr = defaultAddresses[defaultNames[j]];
+				if(addr == dAddr) {
+					var obj = {};
+					obj.lat = defaultCoordsAddr[i].lat;
+					obj.lng = defaultCoordsAddr[i].lng;
+					defaultCoords[j] = obj;
+				}
+			}
+		}
+	},
+
+	createMapMarker : function(locArray) {
+		var len = defaultCoords.length;
+		for(i = 0; i < len; i++) {
+			var marker = new google.maps.Marker({
+				map: map,
+				position: locArray[i]
+			});
+			var infowindow = new google.maps.InfoWindow({
+				content: defaultDescription[i],
+				minWidth: 300
+			});
+			infoWindows.push(infowindow);
+			mapMarkers.push(marker);
+		}
+	},
+
+	placeMapMarker : function() {
+		var len = mapMarkers.length;
+		for(i = 0; i < len; i++) {
+			mapMarkers[i].setMap(map);
+			mapMarkers[i].addListener('click', (function(marker, infowindow){
+				return function() {
+					infowindow.open(map, marker);
+				};
+			})(mapMarkers[i], infoWindows[i]));
+		}
 	}
-}
-
-function placeMapMarker() {
-	var len = mapMarkers.length;
-	for(i = 0; i < len; i++) {
-		mapMarkers[i].setMap(map);
-		mapMarkers[i].addListener('click', (function(marker, infowindow){
-			return function() {
-				infowindow.open(map, marker);
-			};
-		})(mapMarkers[i], infoWindows[i]));
-	}
-}
-
-
-
-//ko.applyBindings(new placesViewModel(), document.getElementById('placesField'));
-//ko.applyBindings(new searchViewModel(), document.getElementById('searchField'));
-
-
-
-//https://maps.googleapis.com/maps/api/geocode/json?address=3308+Kanaina+Avenue+Honolulu,+HI+96815&key=AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s
+};
