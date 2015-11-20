@@ -3,7 +3,7 @@ var geoCodeAPI = "AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s";
 var myLatLng = {lat: 21.469324, lng: -157.961810};
 var defaultCoords = [];
 var defaultNames = [];
-var defaultDescription = ["1","2","3","4","5","6","7","8"];
+var defaultDescription = ["rainbow","big wave","fresh","jawaiian","germaine","uahi","sweet","boots"];
 var defaultLocations = [];
 var defaultAmount = 0;
 var defaultAddresses = {
@@ -26,6 +26,7 @@ function handleDefaultLoc(obj) {
 		defaultAmount++;
 		var addr = defaultAddresses[item];
 		var url = uri + addr + key;
+		console.log(url);
 		$.getJSON(url, function(data) {
 			var obj = {};
 			if(data.status == "OK") {
@@ -60,10 +61,15 @@ function placesViewModel() {
 
 	self.places = ko.observableArray(defaultLocations);
 
+	self.infoWindows = function(index) {
+		infoWindows[index].open(map, mapMarkers[index]);
+	}
+
 	// Offers a toggle for clicking
 	self.click = function(place) {
 		var index = self.places().indexOf(place);
 		self.places()[index].clicked(!place.clicked());
+		self.infoWindows(index);
 	}
 };
 
@@ -137,7 +143,7 @@ function createMapMarker(locArray) {
 			position: locArray[i]
 		});
 		var infowindow = new google.maps.InfoWindow({
-			content: 'test' + i,
+			content: defaultDescription[i],
 			minWidth: 300
 		});
 		infoWindows.push(infowindow);
@@ -150,7 +156,7 @@ function placeMapMarker() {
 	console.log('map marker length: ' + len);
 	for(i = 0; i < len; i++) {
 		mapMarkers[i].setMap(map);
-		google.maps.event.addListener(mapMarkers[i], 'click', (function(marker, infowindow){
+		mapMarkers[i].addListener('click', (function(marker, infowindow){
 			return function() {
 				infowindow.open(map, marker);
 			};
