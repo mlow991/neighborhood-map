@@ -24,14 +24,13 @@ var apiHandler = {
 		var uri = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
 		var key = '&key=' + geoCodeAPI;
 		var gpsCoords = [];
-		var index = -1;
 		for(var item in defaultAddresses) {
-			index++;
 			defaultNames.push(item);
 			defaultAmount++;
 			var addr = defaultAddresses[item];
 			var url = uri + addr + key;
 			$.getJSON(url, function(data) {
+				console.log(data);
 				var obj = {};
 				if(data.status == "OK") {
 					var d = data.results[0].geometry.location;
