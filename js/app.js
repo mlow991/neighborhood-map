@@ -8,14 +8,14 @@ var defaultDescription = ["rainbow","big wave","fresh","jawaiian","germaine","ua
 var defaultLocations = [];
 var defaultAmount = 0;
 var defaultAddresses = {
-	"Rainbow Drive-In" : "3308 Kanaina Ave, Honolulu, HI 96815, USA",
-	"Big Wave Shrimp Truck" : "66-521 Kamehameha Hwy, Haleiwa, HI 96712, USA",
-	"Fresh Catch" : "3109 Waialae Ave, Honolulu, HI 96816, USA",
 	"Jawaiian Irie Jerk" : "1137 11th Ave, Honolulu, HI 96816, USA",
-	"Germaine's Luau" : "91-119 Olai St, Kapolei, HI 96707, USA",
 	"Uahi Island Grill" : "131 Hekili St, Kailua, HI 96734, USA",
+	"Boots and Kimo's Homestyle Kitchen" : "151 Hekili St, Kailua, HI 96734, USA",
+	"Fresh Catch" : "3109 Waialae Ave, Honolulu, HI 96816, USA",
+	"Rainbow Drive-In" : "3308 Kanaina Ave, Honolulu, HI 96815, USA",
 	"Sweet Home Waimanalo" : "41-1025 Kalanianaole Hwy, Waimanalo, HI 96795, USA",
-	"Boots and Kimo's Homestyle Kitchen" : "151 Hekili St, Kailua, HI 96734, USA"
+	"Big Wave Shrimp Truck" : "66-521 Kamehameha Hwy, Haleiwa, HI 96712, USA",
+	"Germaine's Luau" : "91-119 Olai St, Kapolei, HI 96707, USA"
 };
 function app() {
 	var map;
@@ -41,6 +41,22 @@ function app() {
 
 	var mapHandler = {
 		//Sorts the information returned from the geocode API so that the Lat/Lng matches the location name
+
+		sortByAddr : function() {
+			var array = defaultCoordsAddr.sort(function(a,b) {
+				var addA = a.addr.toLowerCase();
+				var addB = b.addr.toLowerCase();
+				if(addA < addB){
+					return -1
+				}
+				if(addA > addB) {
+					return 1
+				}
+				return 0;
+			});
+			return array;
+		},
+
 		sortCoords : function() {
 			var len = defaultNames.length;
 			for(i = 0; i < len; i++) {
@@ -111,12 +127,10 @@ function app() {
 					var obj = {};
 					if(data.status == "OK") {
 						var d = data.results[0].geometry.location;
-						obj.index = index;
-						console.log(obj.index);
 						obj.lat = d.lat;
 						obj.lng = d.lng;
 						obj.addr = data.results[0].formatted_address;
-						var markerInfo = mapHandler.createMapMarker({lat:obj.lat,lng:obj.lng}, obj.index);
+						var markerInfo = mapHandler.createMapMarker({lat:obj.lat,lng:obj.lng}, index);
 						mapHandler.placeMapMarker(markerInfo);
 						gpsCoords.push(obj);
 					} else {
@@ -165,6 +179,7 @@ function app() {
 
 		// Offers a toggle for clicking
 		self.click = function(place) {
+			console.log(place);
 			var index = self.places().indexOf(place);
 			self.places()[index].clicked(!place.clicked());
 			self.infoWindows(index);
@@ -209,4 +224,8 @@ function app() {
 	};
 
 	viewModel.init();
+	setTimeout(function() {
+		console.log('waiting...');
+		defaultCoordsAddr = mapHandler.sortByAddr();
+	}, 1000);
 }
