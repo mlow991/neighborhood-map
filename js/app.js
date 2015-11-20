@@ -26,7 +26,6 @@ function handleDefaultLoc(obj) {
 		defaultAmount++;
 		var addr = defaultAddresses[item];
 		var url = uri + addr + key;
-		console.log(url);
 		$.getJSON(url, function(data) {
 			var obj = {};
 			if(data.status == "OK") {
@@ -55,6 +54,8 @@ function buildDefaultLoc() {
 		defaultLocations.push(object);
 	}
 }
+defaultCoords = handleDefaultLoc(defaultAddresses);
+buildDefaultLoc();
 
 function placesViewModel() {
 	var self = this;
@@ -62,7 +63,12 @@ function placesViewModel() {
 	self.places = ko.observableArray(defaultLocations);
 
 	self.infoWindows = function(index) {
-		infoWindows[index].open(map, mapMarkers[index]);
+		var click = self.places()[index].clicked();
+		if(click) {
+			infoWindows[index].open(map, mapMarkers[index]);
+		} else {
+			infoWindows[index].close();
+		}
 	}
 
 	// Offers a toggle for clicking
@@ -89,8 +95,6 @@ var viewModel = {
 	init : function() {
 		//ko.applyBindings(viewModel.places, document.getElementById('placesField'));
 		//ko.applyBindings(viewModel.search, document.getElementById('searchField'));
-		defaultCoords = handleDefaultLoc(defaultAddresses);
-		buildDefaultLoc();
 		ko.applyBindings(viewModel);
 	},
 	print : function(self) {
@@ -153,7 +157,6 @@ function createMapMarker(locArray) {
 
 function placeMapMarker() {
 	var len = mapMarkers.length;
-	console.log('map marker length: ' + len);
 	for(i = 0; i < len; i++) {
 		mapMarkers[i].setMap(map);
 		mapMarkers[i].addListener('click', (function(marker, infowindow){
@@ -163,6 +166,8 @@ function placeMapMarker() {
 		})(mapMarkers[i], infoWindows[i]));
 	}
 }
+
+
 
 //ko.applyBindings(new placesViewModel(), document.getElementById('placesField'));
 //ko.applyBindings(new searchViewModel(), document.getElementById('searchField'));
