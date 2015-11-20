@@ -17,190 +17,196 @@ var defaultAddresses = {
 	"Sweet Home Waimanalo" : "41-1025 Kalanianaole Hwy, Waimanalo, HI 96795, USA",
 	"Boots and Kimo's Homestyle Kitchen" : "151 Hekili St, Kailua, HI 96734, USA"
 };
+function app() {
+	var map;
+	var mapMarkers = [];
+	var infoWindows = [];
 
-var apiHandler = {
-	//Get the Lat/Lng for each default address using the geocode API
-	handleDefaultLoc : function(obj) {
-		var uri = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
-		var key = '&key=' + geoCodeAPI;
-		var gpsCoords = [];
-		for(var item in defaultAddresses) {
-			defaultNames.push(item);
-			defaultAmount++;
-			var addr = defaultAddresses[item];
-			var url = uri + addr + key;
-			$.getJSON(url, function(data) {
-				console.log(data);
-				var obj = {};
-				if(data.status == "OK") {
-					var d = data.results[0].geometry.location;
-					obj.lat = d.lat;
-					obj.lng = d.lng;
-					obj.addr = data.results[0].formatted_address;
-					gpsCoords.push(obj);
-				} else {
-					console.log("error");
-				}
-			});
-		}
-		return gpsCoords;
-	},
-
-	//Build the default locations observable array to be placed into the placesViewModel
-	buildDefaultLoc : function() {
-		for(i = 0; i < defaultAmount; i++) {
-			var object = {};
-			object.name = defaultNames[i];
-			object.type = "restaurant";
-			object.coordinates = defaultCoords[i];
-			object.description = defaultDescription[i];
-			object.clicked = ko.observable(false);
-			object.match = ko.observable(true);
-			defaultLocations.push(object);
-		}
-	},
-
-	init : function() {
-		defaultCoordsAddr = this.handleDefaultLoc(defaultAddresses);
-		this.buildDefaultLoc();
-	}
-};
-
-apiHandler.init();
-
-function placesViewModel() {
-	var self = this;
-
-	self.places = ko.observableArray(defaultLocations);
-
-	self.infoWindows = function(index) {
-		var click = self.places()[index].clicked();
-		if(click) {
-			infoWindows[index].open(map, mapMarkers[index]);
-		} else {
-			infoWindows[index].close();
-		}
+	function initMap() {
+		var mapOptions = {
+			center: myLatLng,
+			scrollwheel:false,
+			zoom: 11
+		};
+		map = new google.maps.Map(document.getElementById('map'), mapOptions);
+		google.maps.event.addDomListener(window, 'resize', function() {
+			var c = map.getCenter();
+			google.maps.event.trigger(map, 'resize');
+			map.setCenter(c);
+		});
+//		mapHandler.sortCoords();
+//		mapHandler.createMapMarker(defaultCoords);
+//		mapHandler.placeMapMarker();
 	}
 
-	// Offers a toggle for clicking
-	self.click = function(place) {
-		var index = self.places().indexOf(place);
-		self.places()[index].clicked(!place.clicked());
-		self.infoWindows(index);
-	}
-};
-
-function searchViewModel() {
-	var self = this;
-
-	self.search = ko.observable('');
-
-	self.log = function() {
-		console.log(self.search());
-	}
-};
-
-var viewModel = {
-	placesView : new placesViewModel(),
-	searchView : new searchViewModel(),
-	init : function() {
-		ko.applyBindings(viewModel);
-	},
-	print : function(self) {
-		console.log(self.search());
-	},
-	compareSearch : function(index) {
-		var searchString = viewModel.searchView.search();
-
-		var nlowercase = viewModel.placesView.places()[index].name.toLowerCase();
-		var slowercase = searchString.toLowerCase();
-
-		if(nlowercase.indexOf(slowercase) > -1) {
-			viewModel.placesView.places()[index].match(true);
-		} else if(searchString.length == 0) {
-			viewModel.placesView.places()[index].match(true);
-		} else {
-			viewModel.placesView.places()[index].match(false);			
-		}
-
-		return viewModel.placesView.places()[index].match();
-	}
-};
-
-viewModel.init();
-
-var map;
-var mapMarkers = [];
-var infoWindows = [];
-
-function initMap() {
-	var mapOptions = {
-		center: myLatLng,
-		scrollwheel:false,
-		zoom: 11
-	};
-	map = new google.maps.Map(document.getElementById('map'), mapOptions);
-	google.maps.event.addDomListener(window, 'resize', function() {
-		var c = map.getCenter();
-		google.maps.event.trigger(map, 'resize');
-		map.setCenter(c);
-	});
-	mapHandler.sortCoords();
-	mapHandler.createMapMarker(defaultCoords);
-	mapHandler.placeMapMarker();
-}
-
-var mapHandler = {
-	//Sorts the information returned from the geocode API so that the Lat/Lng matches the location name
-	sortCoords : function() {
-		var len = defaultNames.length;
-		for(i = 0; i < len; i++) {
-			var addr = defaultCoordsAddr[i]['addr'];
-			for(j = 0; j < len; j++) {
-				var dAddr = defaultAddresses[defaultNames[j]];
-				if(addr == dAddr) {
-					var obj = {};
-					obj.lat = defaultCoordsAddr[i].lat;
-					obj.lng = defaultCoordsAddr[i].lng;
-					defaultCoords[j] = obj;
+	var mapHandler = {
+		//Sorts the information returned from the geocode API so that the Lat/Lng matches the location name
+		sortCoords : function() {
+			var len = defaultNames.length;
+			for(i = 0; i < len; i++) {
+				var addr = defaultCoordsAddr[i]['addr'];
+				for(j = 0; j < len; j++) {
+					var dAddr = defaultAddresses[defaultNames[j]];
+					if(addr == dAddr) {
+						var obj = {};
+						obj.lat = defaultCoordsAddr[i].lat;
+						obj.lng = defaultCoordsAddr[i].lng;
+						defaultCoords[j] = obj;
+					}
 				}
 			}
-		}
-	},
+		},
 
-	createMapMarker : function(locArray) {
-		var len = defaultCoords.length;
-		for(i = 0; i < len; i++) {
+		createMapMarker : function(loc, index) {
 			var marker = new google.maps.Marker({
 				map: map,
-				position: locArray[i]
+				position: loc
 			});
 			var infowindow = new google.maps.InfoWindow({
-				content: this.createContent(i),
+				content: this.createContent(index),
 				minWidth: 300
 			});
 			infoWindows.push(infowindow);
 			mapMarkers.push(marker);
-		}
-	},
+			return [marker, infowindow];
+		},
 
-	placeMapMarker : function() {
-		var len = mapMarkers.length;
-		for(i = 0; i < len; i++) {
-			mapMarkers[i].setMap(map);
-			mapMarkers[i].addListener('click', (function(marker, infowindow){
+		placeMapMarker : function(markerWindow) {
+			var marker = markerWindow[0];
+			var infowindow = markerWindow[1];
+			marker.setMap(map);
+			marker.addListener('click', (function(marker, infowindow){
 				return function() {
 					infowindow.open(map, marker);
 				};
-			})(mapMarkers[i], infoWindows[i]));
-		}
-	},
+			})(marker, infowindow));
+		},
 
-	createContent : function(index) {
-		var name = '<div id="content"><h1 class="placeName">' + defaultNames[index] + '</h1>';
-		var addr = '<div class="body"><p>' + defaultNames[index] + ' is located at ' + defaultCoordsAddr[index].addr + '</p></div></div>';
-		var description = "";
-		var content = name + addr + description;
-		return content;
-	}
-};
+		createContent : function(index) {
+			var name = '<div id="content"><h1 class="placeName">' + defaultNames[index] + '</h1>';
+			var addr = '<div class="body"><p>' + defaultNames[index] + ' is located at ' + '</p></div></div>';
+			var description = "";
+			var content = name + addr + description;
+			return content;
+		}
+	};
+
+	initMap();
+
+	var apiHandler = {
+		//Get the Lat/Lng for each default address using the geocode API
+		handleDefaultLoc : function(obj) {
+			var uri = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
+			var key = '&key=' + geoCodeAPI;
+			var gpsCoords = [];
+			var index = -1;
+			for(var item in defaultAddresses) {
+				defaultNames.push(item);
+				defaultAmount++;
+				var addr = defaultAddresses[item];
+				var url = uri + addr + key;
+				$.getJSON(url, function(data) {
+					index++;
+					console.log(data);
+					var obj = {};
+					if(data.status == "OK") {
+						var d = data.results[0].geometry.location;
+						obj.index = index;
+						console.log(obj.index);
+						obj.lat = d.lat;
+						obj.lng = d.lng;
+						obj.addr = data.results[0].formatted_address;
+						var markerInfo = mapHandler.createMapMarker({lat:obj.lat,lng:obj.lng}, obj.index);
+						mapHandler.placeMapMarker(markerInfo);
+						gpsCoords.push(obj);
+					} else {
+						console.log("error");
+					}
+				});
+			}
+			return gpsCoords;
+		},
+
+		//Build the default locations observable array to be placed into the placesViewModel
+		buildDefaultLoc : function() {
+			for(i = 0; i < defaultAmount; i++) {
+				var object = {};
+				object.name = defaultNames[i];
+				object.type = "restaurant";
+				object.coordinates = defaultCoords[i];
+				object.description = defaultDescription[i];
+				object.clicked = ko.observable(false);
+				object.match = ko.observable(true);
+				defaultLocations.push(object);
+			}
+		},
+
+		init : function() {
+			defaultCoordsAddr = this.handleDefaultLoc(defaultAddresses);
+			this.buildDefaultLoc();
+		}
+	};
+
+	apiHandler.init();
+
+	function placesViewModel() {
+		var self = this;
+
+		self.places = ko.observableArray(defaultLocations);
+
+		self.infoWindows = function(index) {
+			var click = self.places()[index].clicked();
+			if(click) {
+				infoWindows[index].open(map, mapMarkers[index]);
+			} else {
+				infoWindows[index].close();
+			}
+		}
+
+		// Offers a toggle for clicking
+		self.click = function(place) {
+			var index = self.places().indexOf(place);
+			self.places()[index].clicked(!place.clicked());
+			self.infoWindows(index);
+		}
+	};
+
+	function searchViewModel() {
+		var self = this;
+
+		self.search = ko.observable('');
+
+		self.log = function() {
+			console.log(self.search());
+		}
+	};
+
+	var viewModel = {
+		placesView : new placesViewModel(),
+		searchView : new searchViewModel(),
+		init : function() {
+			ko.applyBindings(viewModel);
+		},
+		print : function(self) {
+			console.log(self.search());
+		},
+		compareSearch : function(index) {
+			var searchString = viewModel.searchView.search();
+
+			var nlowercase = viewModel.placesView.places()[index].name.toLowerCase();
+			var slowercase = searchString.toLowerCase();
+
+			if(nlowercase.indexOf(slowercase) > -1) {
+				viewModel.placesView.places()[index].match(true);
+			} else if(searchString.length == 0) {
+				viewModel.placesView.places()[index].match(true);
+			} else {
+				viewModel.placesView.places()[index].match(false);			
+			}
+
+			return viewModel.placesView.places()[index].match();
+		}
+	};
+
+	viewModel.init();
+}
