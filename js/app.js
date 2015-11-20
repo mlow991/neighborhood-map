@@ -3,7 +3,7 @@ var geoCodeAPI = "AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s";
 var myLatLng = {lat: 21.469324, lng: -157.961810};
 var defaultCoords = [];
 var defaultNames = [];
-var defaultDescription = [1,1,1,1,1,1,1,1];
+var defaultDescription = ["1","2","3","4","5","6","7","8"];
 var defaultLocations = [];
 var defaultAmount = 0;
 var defaultAddresses = {
@@ -112,6 +112,7 @@ viewModel.init();
 
 var map;
 var mapMarkers = [];
+var infoWindows = [];
 function initMap() {
 	var mapOptions = {
 		center: myLatLng,
@@ -119,15 +120,13 @@ function initMap() {
 		zoom: 11
 	};
 	map = new google.maps.Map(document.getElementById('map'), mapOptions);
-	createMapMarker(defaultCoords);
-	placeMapMarker();
-		
-	google.maps.event.addDomListener(window, 'load', initMap);
 	google.maps.event.addDomListener(window, 'resize', function() {
 		var c = map.getCenter();
 		google.maps.event.trigger(map, 'resize');
 		map.setCenter(c);
 	});
+	createMapMarker(defaultCoords);
+	placeMapMarker();
 }
 
 function createMapMarker(locArray) {
@@ -137,14 +136,25 @@ function createMapMarker(locArray) {
 			map: map,
 			position: locArray[i]
 		});
+		var infowindow = new google.maps.InfoWindow({
+			content: 'test' + i,
+			minWidth: 300
+		});
+		infoWindows.push(infowindow);
 		mapMarkers.push(marker);
 	}
 }
 
 function placeMapMarker() {
 	var len = mapMarkers.length;
+	console.log('map marker length: ' + len);
 	for(i = 0; i < len; i++) {
 		mapMarkers[i].setMap(map);
+		google.maps.event.addListener(mapMarkers[i], 'click', (function(marker, infowindow){
+			return function() {
+				infowindow.open(map, marker);
+			};
+		})(mapMarkers[i], infoWindows[i]));
 	}
 }
 
