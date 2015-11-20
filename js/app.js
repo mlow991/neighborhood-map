@@ -1,27 +1,36 @@
 var googMapAPI = "AIzaSyCkPGj9d4QyMtcRFYDII4xco_KBA428oQE";
 var geoCodeAPI = "AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s";
 var myLatLng = {lat: 21.469324, lng: -157.961810};
+var defaultCoordsAddr = [];
 var defaultCoords = [];
 var defaultNames = [];
 var defaultDescription = ["rainbow","big wave","fresh","jawaiian","germaine","uahi","sweet","boots"];
 var defaultLocations = [];
 var defaultAmount = 0;
 var defaultAddresses = {
-	"Rainbow Drive-In" : "3308 Kanaina Avenue Honolulu, HI 96815",
-	"Big Wave Shrimp Truck" : "66-521 Kamehameha Hwy. Haleiwa, HI 96712",
-	"Fresh Catch" : "3109 Waialae Ave Honolulu, HI 96816",
-	"Jawaiian Irie Jerk" : "1137 11th Ave. Honolulu, HI 96816",
-	"Germaine's Luau" : "91-119 Olai St. Kapolei, HI 96707",
-	"Uahi Island Grill" : "131 Hekili St #102 Kailua, HI 96734",
-	"Sweet Home Waimanalo" : "41-1025 Kalanianaole Hwy Waimanalo, HI 96795",
-	"Boots and Kimo's Homestyle Kitchen" : "151 Hekili St Kailua, HI 96734"
+	"Rainbow Drive-In" : "3308 Kanaina Ave, Honolulu, HI 96815, USA",
+	"Big Wave Shrimp Truck" : "66-521 Kamehameha Hwy, Haleiwa, HI 96712, USA",
+	"Fresh Catch" : "3109 Waialae Ave, Honolulu, HI 96816, USA",
+	"Jawaiian Irie Jerk" : "1137 11th Ave, Honolulu, HI 96816, USA",
+	"Germaine's Luau" : "91-119 Olai St, Kapolei, HI 96707, USA",
+	"Uahi Island Grill" : "131 Hekili St, Kailua, HI 96734, USA",
+	"Sweet Home Waimanalo" : "41-1025 Kalanianaole Hwy, Waimanalo, HI 96795, USA",
+	"Boots and Kimo's Homestyle Kitchen" : "151 Hekili St, Kailua, HI 96734, USA"
 };
+
+function printCoords() {
+	for(i = 0; i < defaultCoordsAddr.length; i++) {
+		console.log(defaultCoordsAddr[i]);
+	}
+}
 
 function handleDefaultLoc(obj) {
 	var uri = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
 	var key = '&key=' + geoCodeAPI;
 	var gpsCoords = [];
+	var index = -1;
 	for(var item in defaultAddresses) {
+		index++;
 		defaultNames.push(item);
 		defaultAmount++;
 		var addr = defaultAddresses[item];
@@ -32,6 +41,7 @@ function handleDefaultLoc(obj) {
 				var d = data.results[0].geometry.location;
 				obj.lat = d.lat;
 				obj.lng = d.lng;
+				obj.addr = data.results[0].formatted_address;
 				gpsCoords.push(obj);
 			} else {
 				console.log("error");
@@ -54,8 +64,27 @@ function buildDefaultLoc() {
 		defaultLocations.push(object);
 	}
 }
-defaultCoords = handleDefaultLoc(defaultAddresses);
+defaultCoordsAddr = handleDefaultLoc(defaultAddresses);
 buildDefaultLoc();
+
+//Sorts the information returned from the geocode API so that the Lat/Lng matches the location name
+function sortCoords() {
+	var order = ["Rainbow Drive-In", "Big Wave Shrimp Truck", "Fresh Catch", "Jawaiian Irie Jerk",
+	 "Germaine's Luau", "Uahi Island Grill", "Sweet Home Waimanalo", "Boots and Kimo's Homestyle Kitchen"];
+	var len = order.length;
+	for(i = 0; i < len; i++) {
+		var addr = defaultCoordsAddr[i]['addr'];
+		for(j = 0; j < len; j++) {
+			var dAddr = defaultAddresses[order[j]];
+			if(addr == dAddr) {
+				var obj = {};
+				obj.lat = defaultCoordsAddr[i].lat;
+				obj.lng = defaultCoordsAddr[i].lng;
+				defaultCoords[j] = obj;
+			}
+		}
+	}
+}
 
 function placesViewModel() {
 	var self = this;
@@ -135,6 +164,7 @@ function initMap() {
 		google.maps.event.trigger(map, 'resize');
 		map.setCenter(c);
 	});
+	sortCoords();
 	createMapMarker(defaultCoords);
 	placeMapMarker();
 }
