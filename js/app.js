@@ -74,6 +74,7 @@ function app() {
 		},
 
 		createMapMarker : function(loc, index) {
+			console.log(index);
 			var marker = new google.maps.Marker({
 				map: map,
 				position: loc
@@ -99,8 +100,8 @@ function app() {
 		},
 
 		createContent : function(index) {
-			var name = '<div id="content"><h1 class="placeName">' + defaultNames[index] + '</h1>';
-			var addr = '<div class="body"><p>' + defaultNames[index] + ' is located at ' + '</p></div></div>';
+			var name = '<div id="content"><h1 class="placeName">' + index + '</h1>';
+			var addr = '<div class="body"><p>' + index + ' is located at ' + '</p></div></div>';
 			var description = "";
 			var content = name + addr + description;
 			return content;
@@ -121,22 +122,25 @@ function app() {
 				defaultAmount++;
 				var addr = defaultAddresses[item];
 				var url = uri + addr + key;
-				$.getJSON(url, function(data) {
-					index++;
-					console.log(data);
-					var obj = {};
-					if(data.status == "OK") {
-						var d = data.results[0].geometry.location;
-						obj.lat = d.lat;
-						obj.lng = d.lng;
-						obj.addr = data.results[0].formatted_address;
-						var markerInfo = mapHandler.createMapMarker({lat:obj.lat,lng:obj.lng}, index);
-						mapHandler.placeMapMarker(markerInfo);
-						gpsCoords.push(obj);
-					} else {
-						console.log("error");
-					}
-				});
+				(function(index) {
+					console.log(index);
+					$.getJSON(url, function(data) {
+						console.log(data);
+						var obj = {};
+						if(data.status == "OK") {
+							var d = data.results[0].geometry.location;
+							obj.name = index;
+							obj.lat = d.lat;
+							obj.lng = d.lng;
+							obj.addr = data.results[0].formatted_address;
+							var markerInfo = mapHandler.createMapMarker({lat:obj.lat,lng:obj.lng}, index);
+							mapHandler.placeMapMarker(markerInfo);
+							gpsCoords.push(obj);
+						} else {
+							console.log("error");
+						}
+					});
+				})(item);
 			}
 			return gpsCoords;
 		},
