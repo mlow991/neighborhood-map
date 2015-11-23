@@ -87,6 +87,14 @@ function app() {
 	// Initialize the map
 	initMap();
 
+	function bounceMarker(marker) {
+		marker.setAnimation(google.maps.Animation.BOUNCE);
+		// 700 ms per bounce of the marker
+		setTimeout(function() {
+			marker.setAnimation(null);
+		}, 2100);
+	}
+
 	var Marker = function(ll, name) {
 		this.name = name;
 		this.lat = ll.lat;
@@ -112,6 +120,7 @@ function app() {
 		this.marker.addListener('click', (function(marker, infowindow){
 			return function() {
 				infowindow.open(map, marker);
+				bounceMarker(marker);
 			};
 		})(this.marker, info));		
 	}
@@ -241,6 +250,7 @@ function app() {
 			var click = self.places()[index].clicked();
 			if(click) {
 				infoWindows[namae].open(map, mapMarkers[namae].marker);
+				bounceMarker(mapMarkers[namae].marker);
 			} else {
 				infoWindows[namae].close();
 			}
