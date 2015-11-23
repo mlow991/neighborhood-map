@@ -4,6 +4,8 @@
 function app() {
 	var googMapAPI = "AIzaSyCkPGj9d4QyMtcRFYDII4xco_KBA428oQE";
 	var geoCodeAPI = "AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s";
+	var fourSquareId = "SBXOTOYRD4VY5FTYGPFR13YJNHA3BFDQTEA2C5XQDJQMEO31";
+	var fourSquareSecret = "OA1T4POMTXRWJAJ01E4NLRLZ0RQIXF2G0RIGRQCS3UVCGTVU";
 	var myLatLng = {lat: 21.469324, lng: -157.961810};
 	var defaultCoordsAddr = [];
 	var defaultNames = [];
@@ -145,6 +147,53 @@ function app() {
 
 	apiHandler.init();
 
+	var yelpAPI = {
+		// Credit to Nic Raboy for random nonce generation
+		// https://blog.nraboy.com/2015/03/create-a-random-nonce-string-using-javascript/
+		nonce : function() {
+			var str = "";
+			var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+			for(i = 0; i < 8; i++) {
+				str += chars.charAt(Math.floor(Math.random() * chars.length));
+			}
+			return str;
+		},
+		getYelp : function(loc) {
+			var httpMethod = 'GET';
+			var url = "http://api.yelp.com/v2/search";
+			var parameters = {
+				oauth_consumer_key : yelpAPIckey,
+				oauth_token : yelpAPItoken,
+				oauth_nonce : this.nonce(),
+				oauth_timestamp : Math.floor(Date.now() / 1000),
+				oauth_signature_method : 'HMAC-SHA1',
+				oauth_version : '1.0',
+				callback : 'cb',
+				term : 'food',
+				limit : 1,
+				location : loc
+			};
+			var consumerSecret = yelpAPIcsecret;
+			var tokenSecret = yelpAPItokensecret;
+			var encodedSignature = oauthSignature.generate(httpMethod, url, parameters, consumerSecret, tokenSecret);
+			parameters.outh_signature = encodedSignature;
+			console.log(encodedSignature);
+
+			var yelp_url = url + '?term=' + parameters.term + '&location=' + loc;
+			function Data(data) {
+				console.log(data);
+			}
+			$.ajax({
+				url : yelp_url,
+				type : httpMethod,
+				data : parameters,
+				dataType : 'jsonp',
+			}).done(Data);
+		}
+	};
+	console.log("yelp api:");
+	yelpAPI.getYelp('1137 11th Ave, Honolulu, HI 96816, USA');
+
 	// View model for the key locations listed on the left hand side of the screen
 	function placesViewModel() {
 		var self = this;
@@ -206,6 +255,6 @@ function app() {
 			return viewModel.placesView.places()[index].match();
 		}
 	};
-	
+
 	viewModel.init();
 }
