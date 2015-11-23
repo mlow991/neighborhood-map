@@ -94,7 +94,7 @@ function app() {
 			marker.setAnimation(null);
 		}, 2100);
 	}
-
+//mapMarkers[name].setIcon({path:google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, scale: 6});
 	var Marker = function(ll, name) {
 		this.name = name;
 		this.lat = ll.lat;
@@ -265,6 +265,8 @@ function app() {
 			self.infoWindows(index, namae);
 		}
 	};
+
+
 
 	// View model for the search bar
 	function searchViewModel() {
