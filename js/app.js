@@ -105,7 +105,7 @@ function app() {
 			}
 		});
 		var info = new google.maps.InfoWindow({
-			content: '<div>Test</div>',
+			content: fourSquareDescription[name](),
 			minWidth: 300
 		});
 		infoWindows[name] = info;
@@ -116,46 +116,56 @@ function app() {
 		})(this.marker, info));		
 	}
 
-	var Info = function() {
-		var infowindow = new google.maps.InfoWindow({
-			content: '<div>Test</div>',
-			minWidth: 300
-		});
-	}
-
-
-
 	var fourSquareAPI = {
-	setup : {
-		url : 'https://api.foursquare.com/v2/venues/search',
-		id : '?client_id=SBXOTOYRD4VY5FTYGPFR13YJNHA3BFDQTEA2C5XQDJQMEO31',
-		secret : '&client_secret=OA1T4POMTXRWJAJ01E4NLRLZ0RQIXF2G0RIGRQCS3UVCGTVU',
-		version : '&v=20151122'
-	},
-	query : function(latlng, name, addr) {
-		var ll = '&ll=' + latlng.lat + ',' + latlng.lng;
-		var query = '&query=' + name;
-		var fs_url = this.setup.url + this.setup.id + this.setup.secret + this.setup.version + ll + query;
-		(function(namae) {
-				$.getJSON(fs_url, function(data) {
-					var site = data.response.venues[0].url;
-					var phone = data.response.venues[0].contact.formattedPhone;
-					var name = data.response.venues[0].name;
-					fourSquareDescription[namae] = name + phone + site;
-				}).done(function() {
-				//console.log(fourSquareDescription);
-				});
-			})(name);
-		}
+		setup : {
+			url : 'https://api.foursquare.com/v2/venues/search',
+			id : '?client_id=SBXOTOYRD4VY5FTYGPFR13YJNHA3BFDQTEA2C5XQDJQMEO31',
+			secret : '&client_secret=OA1T4POMTXRWJAJ01E4NLRLZ0RQIXF2G0RIGRQCS3UVCGTVU',
+			version : '&v=20151122'
+		},
+		query : function(latlng, name, addr) {
+			var ll = '&ll=' + latlng.lat + ',' + latlng.lng;
+			var query = '&query=' + name;
+			var fs_url = this.setup.url + this.setup.id + this.setup.secret + this.setup.version + ll + query;
+			(function(namae, addr) {
+					$.getJSON(fs_url, function(data) {
+						var site = data.response.venues[0].url;
+						var phone = data.response.venues[0].contact.formattedPhone;
+						var name = data.response.venues[0].name;
+						infoWindows[namae].setContent(buildContent(name, addr, phone, site));
+					}).done(function() {
+					//console.log(fourSquareDescription);
+					});
+				})(name, addr);
+			}
 	};	
+
+	function buildContent(name, addr, phone, site) {
+		if(name != null) {
+			var address = '<p>Address: ' + addr + '</p>';
+			var link = '<a href="' + site + '">' + site + '</a>';
+			if(site == null) {
+				site = 'No website listed';
+				link = 'No website listed';
+			}
+			if(phone == null) {
+				phone = 'No phone number listed'
+			}
+			var pnum = '<p>Phone: ' + phone + '</p>';
+			var wsite = '<p>Website: ' + link + '</p>';
+			var content = '<div><h1>' + name + '</h1>' + address + pnum + wsite + '</div>';
+			return content;
+		} else {
+			var error = '<div><h1>Foursquare has encountered an error displaying information for this location.</h1></div>';
+			return error;
+		}
+	}
 
 	function buildDescriptions() {
 		for(place in defaultAddresses) {
 			fourSquareAPI.query(myLatLng, place, defaultAddresses[place]);
 		}
 	}
-
-	buildDescriptions();
 
 	// Contains functions that deal with API results
 	var apiHandler = {
@@ -166,6 +176,7 @@ function app() {
 			var gpsCoords = [];
 			for(var item in defaultAddresses) {
 				defaultNames.push(item);
+				fourSquareDescription[item] = ko.observable('<div>Test2</div>');
 				defaultAmount++;
 				var addr = defaultAddresses[item];
 				var url = uri + addr + key;
@@ -291,4 +302,5 @@ function app() {
 	};
 
 	viewModel.init();
+	buildDescriptions();
 }
