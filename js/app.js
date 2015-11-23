@@ -145,18 +145,6 @@ function app() {
 
 	apiHandler.init();
 
-	var fourSquareAPI = {
-		setup : {
-			url : 'https://api.foursquare.com/v2/venues/search',
-			id : '?client_id=SBXOTOYRD4VY5FTYGPFR13YJNHA3BFDQTEA2C5XQDJQMEO31',
-			secret : '&client_secret=A1T4POMTXRWJAJ01E4NLRLZ0RQIXF2G0RIGRQCS3UVCGTVU',
-			version : '&v=20151122'
-		},
-		query : function(loc) {
-			
-		}
-	};
-
 	// View model for the key locations listed on the left hand side of the screen
 	function placesViewModel() {
 		var self = this;
