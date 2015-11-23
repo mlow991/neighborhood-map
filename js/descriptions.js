@@ -5,7 +5,6 @@ var defaultAddresses = {
 	"Boots and Kimo's Homestyle Kitchen" : "151 Hekili St, Kailua, HI 96734, USA",
 	"Fresh Catch" : "3109 Waialae Ave, Honolulu, HI 96816, USA",
 	"Rainbow Drive-In" : "3308 Kanaina Ave, Honolulu, HI 96815, USA",
-	"Sweet Home Waimanalo" : "41-1025 Kalanianaole Hwy, Waimanalo, HI 96795, USA",
 	"Big Wave Shrimp Truck" : "66-521 Kamehameha Hwy, Haleiwa, HI 96712, USA",
 	"Germaine's Luau" : "91-119 Olai St, Kapolei, HI 96707, USA"
 };
@@ -28,7 +27,9 @@ var fourSquareAPI = {
 				var phone = data.response.venues[0].contact.formattedPhone;
 				var name = data.response.venues[0].name;
 				fourSquareDescription[namae] = name + phone + site;
-			});
+			}).done(function() {
+			//console.log(fourSquareDescription);
+		});
 		})(name);
 	}
 };	

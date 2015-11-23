@@ -1,6 +1,11 @@
 
 // Encapsulate code in function that is called upon load of the google api
 // before invoking methods that utilize google code
+	var map;
+	var mapMarkers = {};
+	var infoWindows = {};
+		var defaultLocations = [];
+			var fourSquareDescription = {};
 function app() {
 	var googMapAPI = "AIzaSyCkPGj9d4QyMtcRFYDII4xco_KBA428oQE";
 	var geoCodeAPI = "AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s";
@@ -8,7 +13,7 @@ function app() {
 	var defaultCoordsAddr = [];
 	var defaultNames = [];
 	var defaultDescription = ["rainbow","big wave","fresh","jawaiian","germaine","uahi","sweet","boots"];
-	var defaultLocations = [];
+
 	var defaultAmount = 0;
 	var defaultAddresses = {
 		"Jawaiian Irie Jerk" : "1137 11th Ave, Honolulu, HI 96816, USA",
@@ -16,13 +21,10 @@ function app() {
 		"Boots and Kimo's Homestyle Kitchen" : "151 Hekili St, Kailua, HI 96734, USA",
 		"Fresh Catch" : "3109 Waialae Ave, Honolulu, HI 96816, USA",
 		"Rainbow Drive-In" : "3308 Kanaina Ave, Honolulu, HI 96815, USA",
-		"Sweet Home Waimanalo" : "41-1025 Kalanianaole Hwy, Waimanalo, HI 96795, USA",
 		"Big Wave Shrimp Truck" : "66-521 Kamehameha Hwy, Haleiwa, HI 96712, USA",
 		"Germaine's Luau" : "91-119 Olai St, Kapolei, HI 96707, USA"
 	};
-	var map;
-	var mapMarkers = {};
-	var infoWindows = {};
+
 
 	// Initalizes the map
 	function initMap() {
@@ -42,7 +44,7 @@ function app() {
 	}
 
 	// Contains functions that interact with and also create items for the google map
-	var mapHandler = {
+/*	var mapHandler = {
 		// Generates map marker and corresponding infowindow
 		// Passes these two as a package to the placeMapMarker function
 		createMapMarker : function(loc, index) {
@@ -54,6 +56,7 @@ function app() {
 				content: this.createContent(index),
 				minWidth: 300
 			});
+			this.isVisible = ko.observable(false);
 			var obj = {};
 			obj[index] = infowindow;
 			infoWindows[index] = infowindow;
@@ -80,9 +83,79 @@ function app() {
 			return content;
 		}
 	};
-
+*/
 	// Initialize the map
 	initMap();
+
+	var Marker = function(ll, name) {
+		this.name = name;
+		this.lat = ll.lat;
+		this.lng = ll.lng;
+		this.visible = ko.observable(true);
+		this.marker = new google.maps.Marker({
+			map : map,
+			position: ll
+		});
+//		mapMarkers[name] = marker;
+		this.visible.subscribe(function(value) {
+			if(value) {
+				this.marker.setMap(map);
+			} else {
+				this.marker.setMap(null);
+			}
+		});
+		var info = new google.maps.InfoWindow({
+			content: '<div>Test</div>',
+			minWidth: 300
+		});
+		infoWindows[name] = info;
+		this.marker.addListener('click', (function(marker, infowindow){
+			return function() {
+				infowindow.open(map, marker);
+			};
+		})(this.marker, info));		
+	}
+
+	var Info = function() {
+		var infowindow = new google.maps.InfoWindow({
+			content: '<div>Test</div>',
+			minWidth: 300
+		});
+	}
+
+
+
+	var fourSquareAPI = {
+	setup : {
+		url : 'https://api.foursquare.com/v2/venues/search',
+		id : '?client_id=SBXOTOYRD4VY5FTYGPFR13YJNHA3BFDQTEA2C5XQDJQMEO31',
+		secret : '&client_secret=OA1T4POMTXRWJAJ01E4NLRLZ0RQIXF2G0RIGRQCS3UVCGTVU',
+		version : '&v=20151122'
+	},
+	query : function(latlng, name, addr) {
+		var ll = '&ll=' + latlng.lat + ',' + latlng.lng;
+		var query = '&query=' + name;
+		var fs_url = this.setup.url + this.setup.id + this.setup.secret + this.setup.version + ll + query;
+		(function(namae) {
+				$.getJSON(fs_url, function(data) {
+					var site = data.response.venues[0].url;
+					var phone = data.response.venues[0].contact.formattedPhone;
+					var name = data.response.venues[0].name;
+					fourSquareDescription[namae] = name + phone + site;
+				}).done(function() {
+				//console.log(fourSquareDescription);
+				});
+			})(name);
+		}
+	};	
+
+	function buildDescriptions() {
+		for(place in defaultAddresses) {
+			fourSquareAPI.query(myLatLng, place, defaultAddresses[place]);
+		}
+	}
+
+	buildDescriptions();
 
 	// Contains functions that deal with API results
 	var apiHandler = {
@@ -109,8 +182,10 @@ function app() {
 							obj.lat = d.lat;
 							obj.lng = d.lng;
 							obj.addr = data.results[0].formatted_address;
-							var markerInfo = mapHandler.createMapMarker({lat:obj.lat,lng:obj.lng}, index);
-							mapHandler.placeMapMarker(markerInfo, index);
+							var marker = new Marker({lat:obj.lat,lng:obj.lng}, index);
+							mapMarkers[index] = marker;
+							//var markerInfo = mapHandler.createMapMarker({lat:obj.lat,lng:obj.lng}, index);
+							//mapHandler.placeMapMarker(markerInfo, index);
 							gpsCoords.push(obj);
 						} else {
 							console.log("error");
@@ -154,7 +229,7 @@ function app() {
 		self.infoWindows = function(index, namae) {
 			var click = self.places()[index].clicked();
 			if(click) {
-				infoWindows[namae].open(map, mapMarkers[namae]);
+				infoWindows[namae].open(map, mapMarkers[namae].marker);
 			} else {
 				infoWindows[namae].close();
 			}
@@ -191,16 +266,24 @@ function app() {
 		// that are listed in the key locations pane.
 		compareSearch : function(index) {
 			var searchString = viewModel.searchView.search();
-
-			var nlowercase = viewModel.placesView.places()[index].name.toLowerCase();
+			var name = viewModel.placesView.places()[index].name;
+			var nlowercase = name.toLowerCase();
 			var slowercase = searchString.toLowerCase();
-
 			if(nlowercase.indexOf(slowercase) > -1) {
 				viewModel.placesView.places()[index].match(true);
+				if(mapMarkers[name] != null) {
+					mapMarkers[name].marker.setMap(map);
+				}
 			} else if(searchString.length == 0) {
 				viewModel.placesView.places()[index].match(true);
+				if(mapMarkers[name] != null) {
+					mapMarkers[name].marker.setMap(map);
+				}
 			} else {
-				viewModel.placesView.places()[index].match(false);			
+				viewModel.placesView.places()[index].match(false);
+				if(mapMarkers[name] != null) {
+					mapMarkers[name].marker.setMap(null);
+				}
 			}
 
 			return viewModel.placesView.places()[index].match();
