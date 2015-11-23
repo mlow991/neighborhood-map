@@ -5,6 +5,7 @@
 	var mapMarkers = {};
 	var infoWindows = {};
 		var defaultLocations = [];
+		var objectDefaultLoc = {};
 			var fourSquareDescription = {};
 function app() {
 	var googMapAPI = "AIzaSyCkPGj9d4QyMtcRFYDII4xco_KBA428oQE";
@@ -92,7 +93,7 @@ function app() {
 		// 700 ms per bounce of the marker
 		setTimeout(function() {
 			marker.setAnimation(null);
-		}, 2100);
+		}, 1400);
 	}
 //mapMarkers[name].setIcon({path:google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, scale: 6});
 	var Marker = function(ll, name) {
@@ -119,8 +120,15 @@ function app() {
 		infoWindows[name] = info;
 		this.marker.addListener('click', (function(marker, infowindow){
 			return function() {
-				infowindow.open(map, marker);
-				bounceMarker(marker);
+				if(mapMarkers[name].marker.getIcon() == null) {
+					infowindow.open(map, marker);
+					mapMarkers[name].marker.setIcon({path:google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, scale: 6});
+					bounceMarker(marker);
+				} else {
+					infowindow.close(map, marker);
+					mapMarkers[name].marker.setIcon(null);
+				}
+				viewModel.placesView.click(objectDefaultLoc[name]);
 			};
 		})(this.marker, info));		
 	}
@@ -229,6 +237,7 @@ function app() {
 				// The item is intially matched so that it will display on screen upon load.
 				object.match = ko.observable(true);
 				defaultLocations.push(object);
+				objectDefaultLoc[object.name] = object;
 			}
 		},
 		// Initalize the API for geocode
@@ -250,15 +259,19 @@ function app() {
 			var click = self.places()[index].clicked();
 			if(click) {
 				infoWindows[namae].open(map, mapMarkers[namae].marker);
+				mapMarkers[namae].marker.setIcon({path:google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, scale: 6});
 				bounceMarker(mapMarkers[namae].marker);
+
 			} else {
 				infoWindows[namae].close();
+				mapMarkers[namae].marker.setIcon(null);
 			}
 		}
 
 		// Click notifier that modifies a boolean within the places observable array.
 		// Also applies a toggle on CSS when an item is clicked that highlights the selection.
 		self.click = function(place) {
+			console.log(place);
 			var index = self.places().indexOf(place);
 			var namae = place.name;
 			self.places()[index].clicked(!place.clicked());
