@@ -1,12 +1,6 @@
 
 // Encapsulate code in function that is called upon load of the google api
 // before invoking methods that utilize google code
-	var map;
-	var mapMarkers = {};
-	var infoWindows = {};
-		var defaultLocations = [];
-		var objectDefaultLoc = {};
-			var fourSquareDescription = {};
 function app() {
 	var googMapAPI = "AIzaSyCkPGj9d4QyMtcRFYDII4xco_KBA428oQE";
 	var geoCodeAPI = "AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s";
@@ -14,7 +8,8 @@ function app() {
 	var defaultCoordsAddr = [];
 	var defaultNames = [];
 	var defaultDescription = ["rainbow","big wave","fresh","jawaiian","germaine","uahi","sweet","boots"];
-
+	var defaultLocations = [];
+	var objectDefaultLoc = {};
 	var defaultAmount = 0;
 	var defaultAddresses = {
 		"Jawaiian Irie Jerk" : "1137 11th Ave, Honolulu, HI 96816, USA",
@@ -26,6 +21,9 @@ function app() {
 		"Germaine's Luau" : "91-119 Olai St, Kapolei, HI 96707, USA"
 	};
 
+	var map;
+	var mapMarkers = {};
+	var infoWindows = {};
 
 	// Initalizes the map
 	function initMap() {
@@ -44,50 +42,10 @@ function app() {
 		});
 	}
 
-	// Contains functions that interact with and also create items for the google map
-/*	var mapHandler = {
-		// Generates map marker and corresponding infowindow
-		// Passes these two as a package to the placeMapMarker function
-		createMapMarker : function(loc, index) {
-			var marker = new google.maps.Marker({
-				map: map,
-				position: loc
-			});
-			var infowindow = new google.maps.InfoWindow({
-				content: this.createContent(index),
-				minWidth: 300
-			});
-			this.isVisible = ko.observable(false);
-			var obj = {};
-			obj[index] = infowindow;
-			infoWindows[index] = infowindow;
-			mapMarkers[index] = marker;
-			return [marker, obj];
-		},
-		// Places the marker and its corresponding infoWindow onto the map
-		placeMapMarker : function(markerWindow, index) {
-			var marker = markerWindow[0];
-			var infowindow = markerWindow[1][index];
-			marker.setMap(map);
-			marker.addListener('click', (function(marker, infowindow){
-				return function() {
-					infowindow.open(map, marker);
-				};
-			})(marker, infowindow));
-		},
-		// Generates and returns the html for the content that is specific to a marker's infoWindow
-		createContent : function(index) {
-			var name = '<div id="content"><h1 class="placeName">' + index + '</h1>';
-			var addr = '<div class="body"><p>' + index + ' is located at ' + '</p></div></div>';
-			var description = "";
-			var content = name + addr + description;
-			return content;
-		}
-	};
-*/
 	// Initialize the map
 	initMap();
 
+	// Adds bounce animation to a map marker
 	function bounceMarker(marker) {
 		marker.setAnimation(google.maps.Animation.BOUNCE);
 		// 700 ms per bounce of the marker
@@ -95,29 +53,25 @@ function app() {
 			marker.setAnimation(null);
 		}, 1400);
 	}
-//mapMarkers[name].setIcon({path:google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, scale: 6});
+
+	// Map marker object that also spawns an accompanying default infoWindow
 	var Marker = function(ll, name) {
 		this.name = name;
 		this.lat = ll.lat;
 		this.lng = ll.lng;
-		this.visible = ko.observable(true);
 		this.marker = new google.maps.Marker({
 			map : map,
 			position: ll
 		});
-//		mapMarkers[name] = marker;
-		this.visible.subscribe(function(value) {
-			if(value) {
-				this.marker.setMap(map);
-			} else {
-				this.marker.setMap(null);
-			}
-		});
+		// InfoWindow content is updated with FourSquare data upon foursquare api return
 		var info = new google.maps.InfoWindow({
-			content: fourSquareDescription[name](),
+			content: '<div>Waiting on FourSquare Content...</div>',
 			minWidth: 300
 		});
+		// Store infowindow in a global object so it can be referenced by name when it needs to be placed on map or removed
 		infoWindows[name] = info;
+		// Add event listener on click that mimics the same behavior as the key locations menu pane.
+		// Any click to a map marker also affects look of the accompanying key locations place.
 		this.marker.addListener('click', (function(marker, infowindow){
 			return function() {
 				if(mapMarkers[name].marker.getIcon() == null) {
@@ -131,58 +85,61 @@ function app() {
 				viewModel.placesView.click(objectDefaultLoc[name]);
 			};
 		})(this.marker, info));		
-	}
+	};
 
+	// Handles all tasks related to FourSquare data retrieval and placement.
 	var fourSquareAPI = {
+		// API settings
 		setup : {
 			url : 'https://api.foursquare.com/v2/venues/search',
 			id : '?client_id=SBXOTOYRD4VY5FTYGPFR13YJNHA3BFDQTEA2C5XQDJQMEO31',
 			secret : '&client_secret=OA1T4POMTXRWJAJ01E4NLRLZ0RQIXF2G0RIGRQCS3UVCGTVU',
 			version : '&v=20151122'
 		},
+		// Makes the AJAX request and places relevant information into the proper infoWindow
 		query : function(latlng, name, addr) {
 			var ll = '&ll=' + latlng.lat + ',' + latlng.lng;
 			var query = '&query=' + name;
 			var fs_url = this.setup.url + this.setup.id + this.setup.secret + this.setup.version + ll + query;
 			(function(namae, addr) {
-					$.getJSON(fs_url, function(data) {
-						var site = data.response.venues[0].url;
-						var phone = data.response.venues[0].contact.formattedPhone;
-						var name = data.response.venues[0].name;
-						infoWindows[namae].setContent(buildContent(name, addr, phone, site));
-					}).done(function() {
-					//console.log(fourSquareDescription);
-					});
-				})(name, addr);
+				$.getJSON(fs_url, function(data) {
+					var site = data.response.venues[0].url;
+					var phone = data.response.venues[0].contact.formattedPhone;
+					var name = data.response.venues[0].name;
+					// Replaces default infoWindow content with FourSquare data
+					infoWindows[namae].setContent(fourSquareAPI.buildContent(name, addr, phone, site));
+				});
+			})(name, addr);
+		},
+		// Formats the data returned via the API call
+		buildContent : function(name, addr, phone, site) {
+			// Will only create formatted data structure if the place exists
+			if(name != null) {
+				var address = '<p>Address: ' + addr + '</p>';
+				var link = '<a href="' + site + '">' + site + '</a>';
+				if(site == null) {
+					site = 'No website listed';
+					link = 'No website listed';
+				}
+				if(phone == null) {
+					phone = 'No phone number listed'
+				}
+				var pnum = '<p>Phone: ' + phone + '</p>';
+				var wsite = '<p>Website: ' + link + '</p>';
+				var content = '<div><h1>' + name + '</h1>' + address + pnum + wsite + '</div>';
+				return content;
+			} else {
+				var error = '<div><h1>Foursquare has encountered an error displaying information for this location.</h1></div>';
+				return error;
 			}
+		},
+		// Initalizes the entire FourSquare API handling process
+		init : function() {
+			for(place in defaultAddresses) {
+				fourSquareAPI.query(myLatLng, place, defaultAddresses[place]);
+			}
+		}
 	};	
-
-	function buildContent(name, addr, phone, site) {
-		if(name != null) {
-			var address = '<p>Address: ' + addr + '</p>';
-			var link = '<a href="' + site + '">' + site + '</a>';
-			if(site == null) {
-				site = 'No website listed';
-				link = 'No website listed';
-			}
-			if(phone == null) {
-				phone = 'No phone number listed'
-			}
-			var pnum = '<p>Phone: ' + phone + '</p>';
-			var wsite = '<p>Website: ' + link + '</p>';
-			var content = '<div><h1>' + name + '</h1>' + address + pnum + wsite + '</div>';
-			return content;
-		} else {
-			var error = '<div><h1>Foursquare has encountered an error displaying information for this location.</h1></div>';
-			return error;
-		}
-	}
-
-	function buildDescriptions() {
-		for(place in defaultAddresses) {
-			fourSquareAPI.query(myLatLng, place, defaultAddresses[place]);
-		}
-	}
 
 	// Contains functions that deal with API results
 	var apiHandler = {
@@ -193,7 +150,6 @@ function app() {
 			var gpsCoords = [];
 			for(var item in defaultAddresses) {
 				defaultNames.push(item);
-				fourSquareDescription[item] = ko.observable('<div>Test2</div>');
 				defaultAmount++;
 				var addr = defaultAddresses[item];
 				var url = uri + addr + key;
@@ -261,25 +217,20 @@ function app() {
 				infoWindows[namae].open(map, mapMarkers[namae].marker);
 				mapMarkers[namae].marker.setIcon({path:google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, scale: 6});
 				bounceMarker(mapMarkers[namae].marker);
-
 			} else {
 				infoWindows[namae].close();
 				mapMarkers[namae].marker.setIcon(null);
 			}
 		}
-
 		// Click notifier that modifies a boolean within the places observable array.
 		// Also applies a toggle on CSS when an item is clicked that highlights the selection.
 		self.click = function(place) {
-			console.log(place);
 			var index = self.places().indexOf(place);
 			var namae = place.name;
 			self.places()[index].clicked(!place.clicked());
 			self.infoWindows(index, namae);
 		}
 	};
-
-
 
 	// View model for the search bar
 	function searchViewModel() {
@@ -321,11 +272,10 @@ function app() {
 					mapMarkers[name].marker.setMap(null);
 				}
 			}
-
 			return viewModel.placesView.places()[index].match();
 		}
 	};
 
 	viewModel.init();
-	buildDescriptions();
+	fourSquareAPI.init();
 }
