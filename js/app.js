@@ -1,8 +1,3 @@
-$("#nav-trigger:checkbox").click(function() {
-	$(".item").toggleClass('to-the-left');
-});
-
-
 // Encapsulate code in function that is called upon load of the google api
 // before invoking methods that utilize google code
 function app() {
@@ -22,7 +17,9 @@ function app() {
 		"Fresh Catch" : "3109 Waialae Ave, Honolulu, HI 96816, USA",
 		"Rainbow Drive-In" : "3308 Kanaina Ave, Honolulu, HI 96815, USA",
 		"Big Wave Shrimp Truck" : "66-521 Kamehameha Hwy, Haleiwa, HI 96712, USA",
-		"Germaine's Luau" : "91-119 Olai St, Kapolei, HI 96707, USA"
+		"Germaine's Luau" : "91-119 Olai St, Kapolei, HI 96707, USA",
+		"Hank's Haute Dogs" : "324 Coral St, Honolulu, HI 96813, USA",
+		"Poke Stop" : "95-1840 Meheula Parkway, Mililiani, HI 96789, USA"
 	};
 
 	var map;
@@ -110,7 +107,6 @@ function app() {
 					var site = data.response.venues[0].url;
 					var phone = data.response.venues[0].contact.formattedPhone;
 					var name = data.response.venues[0].name;
-					console.log(data);
 					// Replaces default infoWindow content with FourSquare data
 					infoWindows[namae].setContent(fourSquareAPI.buildContent(name, addr, phone, site));
 				});
@@ -234,6 +230,10 @@ function app() {
 			var namae = place.name;
 			self.places()[index].clicked(!place.clicked());
 			self.infoWindows(index, namae);
+		}
+		// Hide/Show the menu when the hamburger icon is clicked
+		self.menuHide = function() {
+			$('.item').toggleClass('to-the-left');
 		}
 	};
 

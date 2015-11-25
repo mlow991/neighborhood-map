@@ -18,7 +18,7 @@
 	</div>
 	<div class="overall container" id="placesField" data-bind="with: placesView">
 		<ul class="col-3 placeMobile nav-menu">
-			<li class="col-12 place">Key Locations<input type="checkbox" id="nav-trigger"></li>
+			<li class="col-12 place">Key Locations<input type="image" id="nav-trigger" data-bind="click: menuHide" src="images/menu.svg"></li>
 			<!-- ko foreach: places -->
 				<li class="col-12 place item slide" data-bind="text: name, click: $parent.click, style: {backgroundColor: clicked() > 0 ? '#ffff66' : ''}, visible: $root.compareSearch($index())"></li>
 			<!-- /ko -->
