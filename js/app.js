@@ -1,3 +1,7 @@
+$("#nav-trigger:checkbox").click(function() {
+	$(".item").toggleClass('to-the-left');
+});
+
 
 // Encapsulate code in function that is called upon load of the google api
 // before invoking methods that utilize google code

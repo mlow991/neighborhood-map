@@ -47,6 +47,33 @@ div {
 	border: 2px solid #D8D8D8;
 }
 
+.item {
+	position: relative;
+	left: 0px;
+}
+
+.to-the-left {
+	position: relative;
+	left: -200px;
+}
+
+.slide {
+	-webkit-transition: left 0.5s ease-out;
+    -moz-transition: left 0.5s ease-out;
+    -o-transition: left 0.5s ease-out;
+    transition: left 0.5s ease-out;
+}
+
+.nav-menu {
+	padding: 0;
+	margin: 0;
+	list-style-type: none;
+}
+
+#nav-trigger {
+	display: none;
+}
+
 .place {
 	font-family: Arial, Helvetica, sans-serif;
 	font-weight: bold;
@@ -139,5 +166,9 @@ div {
 	#map {
 		position: relative;
 		width: 100%;
+	}
+
+	#nav-trigger {
+		display: inline;
 	}
 }
