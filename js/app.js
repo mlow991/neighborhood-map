@@ -106,6 +106,7 @@ function app() {
 					var site = data.response.venues[0].url;
 					var phone = data.response.venues[0].contact.formattedPhone;
 					var name = data.response.venues[0].name;
+					console.log(data);
 					// Replaces default infoWindow content with FourSquare data
 					infoWindows[namae].setContent(fourSquareAPI.buildContent(name, addr, phone, site));
 				});

@@ -17,7 +17,7 @@
 		</form>
 	</div>
 	<div class="overall container" id="placesField" data-bind="with: placesView">
-		<div class="col-3">
+		<div class="col-3 placeMobile">
 			<div class="col-12 place">Key Locations</div>
 			<!-- ko foreach: places -->
 				<div class="col-12 place" data-bind="text: name, click: $parent.click, style: {backgroundColor: clicked() > 0 ? '#ffff66' : ''}, visible: $root.compareSearch($index())"></div>

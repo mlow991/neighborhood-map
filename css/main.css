@@ -54,6 +54,7 @@ div {
 	padding: 15px;
 	padding-left: 30px;
 	border: 2px solid #D8D8D8;
+	background-color: white;
 }
 
 .place:first-of-type {
@@ -116,4 +117,27 @@ div {
 
 .col-12 {
 	width: 100%;
+}
+
+@media only screen and (max-width: 950px) {
+	.place {
+		font-size: 15px;
+	}
+}
+
+@media only screen and (max-width: 750px) {
+	.place {
+		font-size: 14px;
+	}
+
+	.placeMobile {
+		position: absolute;
+		width: 187.5px;
+		z-index: 1;
+	}
+
+	#map {
+		position: relative;
+		width: 100%;
+	}
 }
