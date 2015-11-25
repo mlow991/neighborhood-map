@@ -13,13 +13,12 @@ function app() {
 	var defaultAddresses = {
 		"Jawaiian Irie Jerk" : "1137 11th Ave, Honolulu, HI 96816, USA",
 		"Uahi Island Grill" : "131 Hekili St, Kailua, HI 96734, USA",
-		"Boots and Kimo's Homestyle Kitchen" : "151 Hekili St, Kailua, HI 96734, USA",
-		"Fresh Catch" : "3109 Waialae Ave, Honolulu, HI 96816, USA",
 		"Rainbow Drive-In" : "3308 Kanaina Ave, Honolulu, HI 96815, USA",
 		"Big Wave Shrimp Truck" : "66-521 Kamehameha Hwy, Haleiwa, HI 96712, USA",
 		"Germaine's Luau" : "91-119 Olai St, Kapolei, HI 96707, USA",
-		"Hank's Haute Dogs" : "324 Coral St, Honolulu, HI 96813, USA",
-		"Poke Stop" : "95-1840 Meheula Parkway, Mililiani, HI 96789, USA"
+		"Poke Stop" : "95-1840 Meheula Parkway, Mililiani, HI 96789, USA",
+		"Opal Thai Food" : "66-197 C Kamehameha Hwy, Haleiwa, HI 96712, USA",
+		"Mike's Huli Huli Chicken" : "47-525 Kamehameha Hwy, Kaneohe, HI 96744, USA"
 	};
 
 	var map;
