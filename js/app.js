@@ -65,7 +65,7 @@ function app() {
 		});
 		// InfoWindow content is updated with FourSquare data upon foursquare api return
 		var info = new google.maps.InfoWindow({
-			content: '<div>Waiting on FourSquare Content...</div>',
+			content: '<div>FourSquare Content has failed to load...</div>',
 			minWidth: 300
 		});
 		// Store infowindow in a global object so it can be referenced by name when it needs to be placed on map or removed
@@ -74,7 +74,7 @@ function app() {
 		// Any click to a map marker also affects look of the accompanying key locations place.
 		this.marker.addListener('click', (function(marker, infowindow){
 			return function() {
-				if(mapMarkers[name].marker.getIcon() == null) {
+				if(mapMarkers[name].marker.getIcon() === null) {
 					infowindow.open(map, marker);
 					mapMarkers[name].marker.setIcon({path:google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, scale: 6});
 					bounceMarker(marker);
@@ -114,6 +114,8 @@ function app() {
 		// Formats the data returned via the API call
 		buildContent : function(name, addr, phone, site) {
 			// Will only create formatted data structure if the place exists
+			// Utilizes loose equality in conditional statements because the value
+			// returned by FourSquare is 'undefined'
 			if(name != null) {
 				var address = '<p>Address: ' + addr + '</p>';
 				var link = '<a href="' + site + '">' + site + '</a>';
@@ -122,7 +124,7 @@ function app() {
 					link = 'No website listed';
 				}
 				if(phone == null) {
-					phone = 'No phone number listed'
+					phone = 'No phone number listed';
 				}
 				var pnum = '<p>Phone: ' + phone + '</p>';
 				var wsite = '<p>Website: ' + link + '</p>';
@@ -135,7 +137,7 @@ function app() {
 		},
 		// Initalizes the entire FourSquare API handling process
 		init : function() {
-			for(place in defaultAddresses) {
+			for(var place in defaultAddresses) {
 				fourSquareAPI.query(myLatLng, place, defaultAddresses[place]);
 			}
 		}
@@ -221,7 +223,7 @@ function app() {
 				infoWindows[namae].close();
 				mapMarkers[namae].marker.setIcon(null);
 			}
-		}
+		};
 		// Click notifier that modifies a boolean within the places observable array.
 		// Also applies a toggle on CSS when an item is clicked that highlights the selection.
 		self.click = function(place) {
@@ -229,19 +231,19 @@ function app() {
 			var namae = place.name;
 			self.places()[index].clicked(!place.clicked());
 			self.infoWindows(index, namae);
-		}
+		};
 		// Hide/Show the menu when the hamburger icon is clicked
 		self.menuHide = function() {
 			$('.item').toggleClass('to-the-left');
-		}
-	};
+		};
+	}
 
 	// View model for the search bar
 	function searchViewModel() {
 		var self = this;
 		// The search input field is actively updated per user input
 		self.search = ko.observable('');
-	};
+	}
 
 	// Parent View model for the searchView and the placesView models.
 	// Allows for communication between the two view models and allows the 
@@ -260,12 +262,14 @@ function app() {
 			var name = viewModel.placesView.places()[index].name;
 			var nlowercase = name.toLowerCase();
 			var slowercase = searchString.toLowerCase();
+			// Conditional checks to see if marker exists utilize a loose
+			// equality comparison as per google documentation
 			if(nlowercase.indexOf(slowercase) > -1) {
 				viewModel.placesView.places()[index].match(true);
 				if(mapMarkers[name] != null) {
 					mapMarkers[name].marker.setMap(map);
 				}
-			} else if(searchString.length == 0) {
+			} else if(searchString.length === 0) {
 				viewModel.placesView.places()[index].match(true);
 				if(mapMarkers[name] != null) {
 					mapMarkers[name].marker.setMap(map);
