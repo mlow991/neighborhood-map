@@ -1,9 +1,9 @@
 // Encapsulate code in function that is called upon load of the google api
 // before invoking methods that utilize google code
 function app() {
-	var googMapAPI = "AIzaSyCkPGj9d4QyMtcRFYDII4xco_KBA428oQE";
-	var geoCodeAPI = "AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s";
-	var myLatLng = {lat: 21.469324, lng: -157.961810};
+	var GOOGLE_MAP_API = "AIzaSyCkPGj9d4QyMtcRFYDII4xco_KBA428oQE";
+	var GEOCODE_API = "AIzaSyCkcvMu_0Ar7_Xv3R3MB6-Ffp_Gxq9Di9s";
+	var MY_LAT_LNG = {lat: 21.469324, lng: -157.961810};
 	var defaultCoordsAddr = [];
 	var defaultNames = [];
 	var defaultDescription = ["rainbow","big wave","fresh","jawaiian","germaine","uahi","sweet","boots"];
@@ -29,7 +29,7 @@ function app() {
 	function initMap() {
 		// Map is center determined by global variable
 		var mapOptions = {
-			center: myLatLng,
+			center: MY_LAT_LNG,
 			scrollwheel:false,
 			zoom: 11
 		};
@@ -84,7 +84,11 @@ function app() {
 				}
 				viewModel.placesView.click(objectDefaultLoc[name]);
 			};
-		})(this.marker, info));		
+		})(this.marker, info));
+		// When an infoWindow is closed, the map marker and list view item are as well.
+		google.maps.event.addListener(info, 'closeclick', function() {
+			viewModel.placesView.click(objectDefaultLoc[this.name]);
+		}.bind(this), false);
 	};
 
 	// Handles all tasks related to FourSquare data retrieval and placement.
@@ -138,7 +142,7 @@ function app() {
 		// Initalizes the entire FourSquare API handling process
 		init : function() {
 			for(var place in defaultAddresses) {
-				fourSquareAPI.query(myLatLng, place, defaultAddresses[place]);
+				fourSquareAPI.query(MY_LAT_LNG, place, defaultAddresses[place]);
 			}
 		}
 	};	
@@ -148,7 +152,7 @@ function app() {
 		//Get the Lat/Lng for each default address using the geocode API
 		handleDefaultLoc : function(obj) {
 			var uri = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
-			var key = '&key=' + geoCodeAPI;
+			var key = '&key=' + GEOCODE_API;
 			var gpsCoords = [];
 			for(var item in defaultAddresses) {
 				defaultNames.push(item);
@@ -170,11 +174,10 @@ function app() {
 							obj.addr = data.results[0].formatted_address;
 							var marker = new Marker({lat:obj.lat,lng:obj.lng}, index);
 							mapMarkers[index] = marker;
-							//var markerInfo = mapHandler.createMapMarker({lat:obj.lat,lng:obj.lng}, index);
-							//mapHandler.placeMapMarker(markerInfo, index);
 							gpsCoords.push(obj);
 						} else {
-							console.log("error");
+							console.log("error with call to google api");
+							$("#map").append('<div>ERROR: COULD NOT REACH GOOGLE SERVERS</div>');
 						}
 					});
 				})(item);
@@ -229,6 +232,7 @@ function app() {
 		self.click = function(place) {
 			var index = self.places().indexOf(place);
 			var namae = place.name;
+			self.onePlace(namae);
 			self.places()[index].clicked(!place.clicked());
 			self.infoWindows(index, namae);
 		};
@@ -236,6 +240,15 @@ function app() {
 		self.menuHide = function() {
 			$('.item').toggleClass('to-the-left');
 		};
+		// Only allows the named place to remain selected.
+		self.onePlace = function(name) {
+			for(i = 0; i < 8; i++) {
+				var namae = self.places()[i].name;
+				if(name !== namae && self.places()[i].clicked()) {
+					self.click(objectDefaultLoc[namae]);
+				}
+			}
+		}
 	}
 
 	// View model for the search bar
