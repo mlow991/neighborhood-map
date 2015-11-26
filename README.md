@@ -1,12 +1,12 @@
 <h1>Project 5: Neighborhood Map</h1>
 
-The neighborhood I chose to implement was inspired by Food Network's <i>Diners, Drive-Ins and Dives</i> and contain an assortment of restaurant locations that were visited by Guy Fieri during the show.
+The neighborhood I chose to implement was inspired by Food Network's <i>Diners, Drive-Ins and Dives</i> and contains an assortment of restaurant locations that were visited by Guy Fieri during the show.
 
 <h2>Project Overview</h2>
 
-The purpose of this project is to provide an example of an application that utlizes a framework to separate concerns when programming.  The modular nature of separating concerns allows for a very succinct implementation of code.  The model, view, and view-models are separated to keep code clean and easy to edit and understand.  Learning a framework with an organized design pattern is crucial to writing manageable code.<br>
+The purpose of this project is to provide an example of an application that utlizes a framework to separate concerns when programming.  The modular nature of separating concerns allows for a very succinct implementation of code.  The model, view, and view-models are distinct entities and allow for easy reading and understanding.  Learning a framework with an organized design pattern is crucial to writing manageable code.<br>
 
-Another facet of this project is the implementation of AJAX requests.  This application makes two AJAX requests, one to the geocode API from Google, and the FourSquare API.  Being able to interact with API servers and handle the data that is returned is one of the primary functions of a front-end developer.
+Another facet of this project is the implementation of AJAX requests.  This application makes two types of AJAX requests, one to the geocode API from Google, and the FourSquare API.  Being able to interact with API servers and handle the data that is returned is one of the primary functions of a front-end developer.
 
 <h2>The Key Locations "List View"</h2>
 
