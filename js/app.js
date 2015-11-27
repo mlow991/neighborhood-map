@@ -112,6 +112,9 @@ function app() {
 					var name = data.response.venues[0].name;
 					// Replaces default infoWindow content with FourSquare data
 					infoWindows[namae].setContent(fourSquareAPI.buildContent(name, addr, phone, site));
+				}).fail(function() {
+					console.log("Error communicating with FourSquare API");
+					infoWindows[namae].setContent(fourSquareAPI.buildContent(null));
 				});
 			})(name, addr);
 		},
@@ -277,12 +280,7 @@ function app() {
 			var slowercase = searchString.toLowerCase();
 			// Conditional checks to see if marker exists utilize a loose
 			// equality comparison as per google documentation
-			if(nlowercase.indexOf(slowercase) > -1) {
-				viewModel.placesView.places()[index].match(true);
-				if(mapMarkers[name] != null) {
-					mapMarkers[name].marker.setMap(map);
-				}
-			} else if(searchString.length === 0) {
+			if(nlowercase.indexOf(slowercase) > -1 || searchString.length === 0) {
 				viewModel.placesView.places()[index].match(true);
 				if(mapMarkers[name] != null) {
 					mapMarkers[name].marker.setMap(map);
