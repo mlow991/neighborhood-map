@@ -33,8 +33,9 @@ You will need an internet connection to successfully run this neighborhood map a
 A Gruntfile is included along with package.json which lists all the dependencies required to generate a distributable version of the site.  Html, CSS, and javascript are all minified via this process.
 
 To install and run Grunt:
-1. Make sure you have the latest version of node.js (npm comes bundled with newer versions)
-2. Install the Grunt cli by typing in the cmd line in the project directory: 'npm install -g grunt-cli'
-3. Copy over the package.json and gruntfile.js
-4. Install the project dependencies: 'npm install'
-5. Run the Grunt default tasks which are already setup in the gruntfile.js provided
+
+1.	Make sure you have the latest version of node.js (npm comes bundled with newer versions)
+2.	Install the Grunt cli by typing in the cmd line in the project directory: 'npm install -g grunt-cli'
+3.	Copy over the package.json and gruntfile.js
+4.	Install the project dependencies: 'npm install'
+5.	Run the Grunt default tasks which are already setup in the gruntfile.js provided
